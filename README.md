@@ -8,6 +8,7 @@ A collection of tutorials to be covered in the LMU Munich Phylogenomics course.
 
 * [Getting Started](getting_started/README.md)<br>General instructions on the use of these tutorials
 
+<!--
 ## Day 1
 
 * [Bayesian Phylogenetic Inference](bayesian_phylogeny_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated phylogenies
@@ -16,7 +17,6 @@ A collection of tutorials to be covered in the LMU Munich Phylogenomics course.
 
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
 
-<!--
 ## Day 2
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees

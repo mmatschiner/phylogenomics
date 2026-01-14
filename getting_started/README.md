@@ -122,7 +122,7 @@ Links to input files and scripts are included in all tutorials and to run a give
 	
 	Instead of downloading the file through the browser (which would download it to your own computer), you could also just copy its URL, and then download it through the command line, for example with the `wget` command:
 	
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week1_day1_afternoon/data/locus_0001.fas
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/getting_started/data/locus_0001.fas
 	
 * Make sure that the file has been placed in the expected directory, either with the file manager program or the command line. To do so on the command line, you could use this command:
 
