@@ -1,6 +1,6 @@
 # Phylogenomics
 
-A collection of tutorials to be covered in the LMU Munich Phylogenomics course.
+A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 ## Prepration
 
