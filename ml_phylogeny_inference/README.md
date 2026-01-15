@@ -28,14 +28,14 @@ In this tutorial, I will present maximum-likelihood phylogeny inference with one
 ## Dataset
 
 <!--The data used in this tutorial are the filtered versions of the alignments generated for 16S and *RAG1* sequences in tutorial [Multiple Sequence Alignment](../multiple_sequence_alignment/README.md).-->
-The data used in this tutorial are two filtered alignments of 16S and *RAG1* sequences. These alignments contain sequence data for 41 teleost fish species and are 486 and 1,368 bp long, respectively. While IQ-TREE also allows other file formats (including Phylip and Fasta), we will here use alignment files in Nexus format, [`16s_filtered.nex`](data/16s_filtered.nex) and [`rag1_filtered.nex`](data/rag1_filtered.nex).
+The data used in this tutorial are two filtered alignments of 16S and *RAG1* sequences. These alignments contain sequence data for 41 teleost fish species and are 486 and 1,368 bp long, respectively. Both alignments are in FASTA format, [`16s_filtered.fasta`](data/16s_filtered.fasta) and [`rag1_filtered.fasta`](data/rag1_filtered.fasta).
 
 <a name="requirements"></a>
 ## Requirements
 
-* **IQ-TREE:** Precompiled binaries for Mac OS X, Linux, and Windows are available on [http://www.iqtree.org/#download](http://www.iqtree.org/#download). To install IQ-TREE on any of these systems, download the version for your operating system, and decompress this file on your machine if necessary. In the decompressed directory, you'll find a subdirectory named `bin` and inside of this subdirectory should be a file named `iqtree` or `iqtree.exe`. To easily access this executable from the command line, place it in a directory that is included in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable))), such as `/usr/local/bin` on Mac OS X.
+* **IQ-TREE:** The program [IQ-TREE v.3.0.1](http://www.iqtree.org) is installed on lynx and can be called with `iqtree3`.
 	
-* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) by Andrew Rambaut is a very intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Executables for Mac OS X, Linux, and Windows are provided on [https://github.com/rambaut/figtree/releases](https://github.com/rambaut/figtree/releases).
+* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) needs to be installed on your local computer (see [Requirements](../requirements.md)).
 
 
 <a name="iqtree"></a>
@@ -49,14 +49,14 @@ In this part of the tutorial, we will generate a simple maximum-likelihood phylo
 		
 * Scroll back up to the beginning of the IQ-TREE help text. Close to the very top, you'll see that IQ-TREE could be started as easily as this:
 
-		iqtree3 -s ALIGNMENT 
-	Here, "ALIGNMENT" would need to be replaced with the actual file name of the alignment.
+		iqtree3 -s FILE 
+	Here, "FILE" would need to be replaced with the actual file name of the alignment.
 
-* So, let's try to run a maximum-likelihood search, first for the 16S sequence data, using the alignment file [`16s_filtered.nex`](data/16s_filtered.nex):
+* So, let's try to run a maximum-likelihood search, first for the 16S sequence data, using the alignment file [`16s_filtered.fasta`](data/16s_filtered.fasta):
 
-		cp data/16s_filtered.nex .
-		iqtree3 -s 16s_filtered.nex 
-	As you'll see, this minimalistic choice of options in fact seems to be sufficient. IQ-TREE should finish the analysis within 10-30 seconds and present output as shown in the screenshot below.<p align="center"><img src="img/iqtree1.png" alt="IQTREE" width="600"></p>If you read the top section of the output, you'll see that IQ-TREE has apparently automatically determined the number of CPUs available on your machine and indicates that you could use them all by specifying `-nt AUTO`. You'll also see that IQ-TREE has correctly identified the Nexus format of the sequence alignment, and that it reports the proportion of missing data in each sequence.
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/ml_phylogeny_inference/data/16s_filtered.fasta
+		iqtree3 -s 16s_filtered.fasta 
+	As you'll see, this minimalistic choice of options for IQ-TREE in fact seems to be sufficient. IQ-TREE should finish the analysis within 10-30 seconds and present output as shown in the screenshot below.<p align="center"><img src="img/iqtree1.png" alt="IQTREE" width="600"></p>If you read the top section of the output, you'll see that IQ-TREE has apparently automatically determined the number of CPUs available on your machine and indicates that you could use them all by specifying `-nt AUTO`. You'll also see that IQ-TREE has correctly identified the Nexus format of the sequence alignment, and that it reports the proportion of missing data in each sequence.
 
 * Then, scroll down a little to this section:<p align="center"><img src="img/iqtree2.png" alt="IQTREE" width="600"></p>Here, you'll see that IQ-TREE has apparently automatically performed a test for the substitution model that best fits the sequence alignment. This means that the default setting of IQ-TREE is equivalent to the `-m MFP` option described in the help text (extended model selection followed by tree inference) ([Kalyaanamoorthy et al. 2017](https://www.nature.com/articles/nmeth.4285)). Alternatively, other substitution models could be specified, for example with `-m GTR`, but there is no need to do that; it is very convenient that IQ-TREE does the model selection for us. **Question 1:** Which model has been chosen by IQ-TREE, and based on which criterion? [(see answer)](#q1)
 	
