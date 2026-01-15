@@ -8,9 +8,11 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Getting Started](getting_started/README.md)<br>General instructions on the use of these tutorials
 
-<!--
 ## Day 1
 
+* [Maximum-Likelihood Phylogenetic Inference](ml_phylogeny_inference/README.md)<br>A tutorial on maximum-likelihhood phylogenetic inference
+
+<!--
 * [Bayesian Phylogenetic Inference](bayesian_phylogeny_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated phylogenies
 
 * [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils
