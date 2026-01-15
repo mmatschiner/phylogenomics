@@ -43,12 +43,12 @@ instring = infile.read()
 
 support_values = []
 if "posterior=" in instring:
-    pattern=re.compile('posterior=\d+\.*\d*')
+    pattern=re.compile('posterior=\\d+\\.*\\d*')
     matches = pattern.findall(instring)
     for match in matches:
         support_values.append(float(match[10:]))
 else:
-    pattern = re.compile('\)\d+\.*\d*:')
+    pattern = re.compile('\\)\\d+\\.*\\d*:')
     matches = pattern.findall(instring)
     for match in matches:
         support_values.append(float(match[1:-1]))
