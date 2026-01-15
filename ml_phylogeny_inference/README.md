@@ -52,9 +52,12 @@ In this part of the tutorial, we will generate a simple maximum-likelihood phylo
 		iqtree3 -s FILE 
 	Here, "FILE" would need to be replaced with the actual file name of the alignment.
 
-* So, let's try to run a maximum-likelihood search, first for the 16S sequence data, using the alignment file [`16s_filtered.fasta`](data/16s_filtered.fasta):
+* So, let's try to run a maximum-likelihood search, first for the 16S sequence data, using the alignment file [`16s_filtered.fasta`](data/16s_filtered.fasta). First, download that file into the tutorial directory on lynx:
 
 		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/ml_phylogeny_inference/data/16s_filtered.fasta
+		
+* Then, launch the maximum-likelihood search with IQ-TREE:
+
 		iqtree3 -s 16s_filtered.fasta 
 	As you'll see, this minimalistic choice of options for IQ-TREE in fact seems to be sufficient. IQ-TREE should finish the analysis within 10-30 seconds and present output as shown in the screenshot below.<p align="center"><img src="img/iqtree1.png" alt="IQTREE" width="600"></p>If you read the top section of the output, you'll see that IQ-TREE has apparently automatically determined the number of CPUs available on your machine and indicates that you could use them all by specifying `-nt AUTO`. You'll also see that IQ-TREE has correctly identified the Nexus format of the sequence alignment, and that it reports the proportion of missing data in each sequence.
 
