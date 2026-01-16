@@ -4,7 +4,7 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 ## Prepration
 
-* [Requirements](requirements.md)<br>A list of all installations required for the tutorials
+* [Requirements](requirements/README.md)<br>A list of all installations required for the tutorials
 
 * [Getting Started](getting_started/README.md)<br>General instructions on the use of these tutorials
 
