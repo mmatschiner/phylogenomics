@@ -80,10 +80,9 @@ The dataset used here includes sequences for two genes; the mitochondrial 16S ge
 <a name="requirements"></a>
 ## Requirements
 
-* **IQ-TREE:** The program [IQ-TREE v.3.0.1](http://www.iqtree.org) is installed on lynx and can be called with `iqtree3`.
+* **IQ-TREE:** The program [IQ-TREE v.3.0.1](http://www.iqtree.org) is among the most widely used programs for maximum-likelihood phylogenetic inference. It installed on lynx and can be called with `iqtree3`. Installation on your local computer is not required (but would be easy following the instructions on the [IQ-TREE website](http://www.iqtree.org)).
 	
-* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) needs to be installed on your local computer (see [Requirements](../requirements.md)).
-
+* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Being a GUI program, FigTree can not be run on lynx, but needs to be installed and used on your local computer (see [Requirements](../requirements/README.md)). Input files for FigTree will thus need to be downloaded from lynx. 
 
 <a name="iqtree"></a>
 ## Maximum-likelihood phylogenetic inference with IQ-TREE

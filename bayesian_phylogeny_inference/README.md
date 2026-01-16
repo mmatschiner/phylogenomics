@@ -65,126 +65,27 @@ Note that the last species, *Astatotilapia burtoni*, is named *Haplochromis burt
 <a name="requirements"></a>
 ## Requirements
 
-* **BEAST2:** The BEAST2 package, including BEAUti, BEAST2 itself, TreeAnnotator, and other tools can be downloaded from the BEAST2 website [https://www.beast2.org](https://www.beast2.org). As all these programs are written in Java, compilation is not required, and all programs should work on Mac OS X, Linux, and Windows.<br>
+* **BEAST2:** BEAST2 is a program for Bayesian phylogenetic analyses, that comes bundled with other tools, such as BEAUti (used to prepare BEAST2 input) and TreeAnnotator (used to process BEAST2 output). The BEAST2 program package needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
 
+* **Tracer:** The program [Tracer](http://beast.community/tracer) facilitates the inspection of output from Bayesian analyses such as those done with BEAST2. Tracer needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
 
-* **bModelTest:** The [bModelTest](https://github.com/BEAST2-Dev/bModelTest) ([Bouckaert and Drummond 2017](https://bmcevolbiol.biomedcentral.com/articles/10.1186/s12862-017-0890-6)) add-on package enables automated substitution model selection as part of BEAST2 analyses. This package needs to be installed both on lynx and on your local computer, because it will be required during the BEAST2 analysis (which will be executed on lynx) and for the setup and the interpretation of BEAST2 results (which will be done on the local computer). In both cases, BEAST2's PackageManager tool is used for the installation, but the PackageManager is called differently; from the command line on lynx, and through BEAUti on the local computer.
-
-	To install bModelTest with BEAST2's PackageManager on lynx, use the following commands:
-
-		module purge
-		module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
-		packagemanager -add bModelTest
-
-	On your local computer, BEAST2's PackageManager is accessible through BEAUti. To find it, open BEAUti, and click on "Manage Packages" in BEAUti's "File" menu, as shown in the next screenshot.<p align="center"><img src="img/beauti1.png" alt="BEAUti" width="700"></p>
-	This will open the BEAST2 Package Manager as shown in the next screenshot. Select "bModelTest" and click on "Install/Upgrade".<p align="center"><img src="img/beauti2.png" alt="BEAUti" width="700"></p>You will see a notice that any changes will only take effect after you restart BEAUti; thus, do so.
-
-* **Tracer:** The program [Tracer](http://beast.community/tracer) needs to be installed on your local computer (see [Requirements](../requirements.md)).
-
-
-* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) needs to be installed on your local computer (see [Requirements](../requirements.md)).
-
-<a name="preparation"></a>
-## Dataset preparation
-
-As a first step, we will need to reduce the dataset consisting of 100 alignments with gene sequences from 41 teleost species to a set comprising 10 alignments with sequences from 20 species. In principle it would be feasible to analyse all 100 alignments and all 41 species with BEAST2; however, this analysis could take many days to complete. Of course, if we would run an analysis for a publication, we should show enough patience to perform such a more extensive analysis, but to keep the run time short for this tutorial, the dataset reduction will be necessary.
-
-This part of the tutorial is easiest done on Saga. The dataset of 100 alignments can be found in directory `/cluster/projects/nn9458k/phylogenomics/week2/data` on Saga as well as online in the [GitHub repository](https://github.com/ForBioPhylogenomics/tutorials/blob/main/week2_data/hughes_etal_100_orthologs.tgz).
-
-* Either copy the dataset from the data directory on Saga or download it from GitHub. To copy, use this command:
-
-		cp /cluster/projects/nn9458k/phylogenomics/week2/data/hughes_etal_100_orthologs.tgz .
-		
-	To download, use `wget`:
-	
-		wget https://github.com/ForBioPhylogenomics/tutorials/raw/main/week2_data/hughes_etal_100_orthologs.tgz	
-* Uncompress the dataset:
-
-		tar -xzf hughes_etal_100_orthologs.tgz
-
-* Make a new directory for the reduced dataset.
-
-		mkdir hughes_etal_10_orthologs
-		
-* Copy the first ten alignments into this new directory.
-
-		cp hughes_etal_100_orthologs/locus_000?.nexus hughes_etal_10_orthologs
-		cp hughes_etal_100_orthologs/locus_0010.nexus hughes_etal_10_orthologs
-
-* Make yet another new directory named `hughes_etal_10_orthologs_20_species` for reduced alignments with only 20 species:
-
-		mkdir hughes_etal_10_orthologs_20_species
-
-* Download the Python script `convert.py`:
-
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/convert.py
-
-* Have a look at the help text of the Python script, after loading the Python module:
-
-		module load Python/3.8.2-GCCcore-9.3.0
-		python convert.py -h
-		
-	You'll see that this script is primarily for conversion between alignment formats. However, option `-p` allows the specification of certain IDs that should be included in the output. We are going to use this option to specify that only sequences from the 20 target species should be written to new output files.
-
-* Open a new file named `reduce_alignments.sh` on Saga, using a text editor available on Saga, such as Emacs, Vim, or Nano. You could also write the file with a GUI text editor on a local computer, but then the file would need to be copied to Saga afterwards, e.g. with `scp`. When using Emacs to open the new file, type the following command (for other text editors, simply replace "emacs" with "vim" or "nano"):
-
-		emacs reduce_alignments.sh
-		
-* Write the following content to the new file:
-
-		id_string="Danio_rerio \
-		Salmo_salar \
-		Borostomias_antarcticus \
-		Benthosema_glaciale \
-		Polymixia_japonica \
-		Zeus_faber \
-		Gadus_morhua \
-		Lampris_guttatus \
-		Monocentris_japonica \
-		Myripristis_jacobus \
-		Beryx_splendens \
-		Brotula_barbata \
-		Chatrabus_melanurus \
-		Thunnus_albacares \
-		Takifugu_rubripes \
-		Gasterosteus_aculeatus \
-		Cynoglossus_semilaevis \
-		Amphilophus_citrinellus \
-		Oreochromis_niloticus \
-		Haplochromis_burtoni"
-		for in_nex in hughes_etal_10_orthologs/*.nexus
-		do
-			in_nex_base=`basename ${in_nex}`
-			echo -n "Reducing file ${in_nex_base}..."
-			out_nex=hughes_etal_10_orthologs_20_species/${in_nex_base%.nexus}.nex
-			python convert.py -p ${id_string} -f nexus ${in_nex} ${out_nex}
-			echo " done."
-		done
-
-* Save and close the script (if using Emacs, the rather complicated key combination to do so is Ctrl-X Ctrl-S Ctrl-X Ctrl-C).
-
-* Execute the script `reduce_alignments.sh`. Usually, this would be done with `bash reduce_alignments.sh`. However; when using Saga, any script executions should be done either inside Slurm scripts or through the `srun` command. Some more information about the latter can be found in the [Saga documentation](https://documentation.sigma2.no/jobs/interactive_jobs.html). Specifying that we need a single thread (`--ntasks=1`), a maximum memory requirement of 1 GB (`--mem-per-cpu=1G`), a maximum run time of 1 minute (`--time=00:01:00`), and the account number for the ForBio course is "nn9458k" (`--account=nn9458k`), we can execute the script with the following command:
-
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bash reduce_alignments.sh
-
-* The directory `hughes_etal_10_orthologs_20_species` should then contain 10 alignment files that each contain 20 sequencing. Make sure that this is the case, using `ls` and `less`:
-
-		ls -l hughes_etal_10_orthologs_20_species
-		less -S hughes_etal_10_orthologs_20_species/locus_0001.nex
-		
-
+* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. FigTree needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
 
 
 <a name="beast2"></a>
 ## Bayesian phylogenetic inference with BEAST2
 
-In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis with a dataset of 10 gene alignments, using the programs of the BEAST2 software package. In this analysis, we are going to assume that all genes share the same evolutionary history and that this history is also identical to the evolutionary history of the 20 teleost fish species from which the sequences were obtained. In other words, we are going to assume that all "gene trees" are identical and that they also are identical to the "species tree".
+In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis with the dataset of 10 gene alignments, using the programs of the BEAST2 software package. In this analysis, we are going to assume that all genes share the same evolutionary history and that this history is also identical to the evolutionary history of the 20 teleost fish species from which the sequences were obtained. In other words, we are going to assume that all "gene trees" are identical and that they also are identical to the "species tree".
 
 * If you're not familiar yet with Bayesian analyses and Markov-Chain Monte Carlo methods in general, you might be overwhelmed at first by the complexities of this type of analyses. Thus, it might be worth noting the many resources made available by BEAST2 authors that provide a wealth of information, that, even if you don't need them right now, could prove to be useful at a later stage. You might want to take a moment to explore the [BEAST2 website](https://www.beast2.org) and quickly browse through the [glossary of terms related to BEAST2 analyses](https://www.beast2.org/glossary/index.html). Note that the BEAST2 website also provides a [wide range of tutorials and manuals](https://www.beast2.org/tutorials/index.html). In addition, you can find many further tutorials on the [Taming the BEAST](https://taming-the-beast.org) website, where you will also find information about the excellent [Taming-the-BEAST workshops](https://taming-the-beast.org/workshops/). Finally, if you have further questions regarding BEAST2, you could have a look if somebody else already asked those questions on the very active [user forum](https://groups.google.com/forum/#!forum/beast-users), or you could ask these questions there yourself.
 
-* Download the 10 alignments from Saga to your local computer, for example with `scp`. If the alignments should be located on Saga in the directory `/cluster/projects/nn9458k/phylogenomics/USERNAME/hughes_etal_10_orthologs_20_species`, you could use this `scp` command (you will have to replace "USERNAME"):
+* Download the 10 alignments to your local computer:
 
-		scp -r USERNAME@saga.sigma2.no:/cluster/projects/nn9458k/phylogenomics/USERNAME/hughes_etal_10_orthologs_20_species .
+		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/bayesian_phylogeny_inference/data/hughes_etal_10_orthologs_20_species.tgz
+
+* Uncompress the download file, by clicking on it, or by using the `tar` command:
+
+		tar -xzf hughes_etal_10_orthologs_20_species.tgz
 
 * Open the program BEAUti from the BEAST2 package, and import all ten alignments. To do so, click "Import Alignment" from the "File" menu and select the ten Nexus files `locus_0001.nex` to `locus_0010.nex`. The BEAUti window should then look as shown in the screenshot below.<p align="center"><img src="img/beauti3.png" alt="BEAUti" width="700"></p>
 
@@ -194,7 +95,7 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 
 	Apparently, only the trees of partitions "locus\_0001", "locus\_0003", "locus\_0004", "locus\_0006", and "locus\_0009" are linked (they have the same label, "locus\_0001", in the "Tree" column), while all other partitions still have individual labels in the "Tree" column". The problem lies in missing sequences in half of the partitions. As the number of taxa listed in the "Taxa" column indicates, the partition "locus\_0002" is missing three sequences, "locus\_0005" and "locus\_0008" are missing two sequences, and "locus\_0007" and "locus\_0010" are missing one sequence.
 	
-* Have a look at the alignment in file `locus_0002.nex` to verify that the alignment only contains 17 and not 20 sequences, for example with `less -S` (on Saga):
+* Have a look at the alignment in file `locus_0002.nex` to verify that the alignment only contains 17 and not 20 sequences, for example with `less -S`:
 
 		less -S hughes_etal_10_orthologs_20_species/locus_0002.nex
 		
