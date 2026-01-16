@@ -100,21 +100,22 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 		less -S hughes_etal_10_orthologs_20_species/locus_0002.nex
 		
 	You'll see that this is the case. So apparently, each of the 20 species needs to be included in each alignment to allow the estimation of a single tree for all species with BEAST2. To achieve this, we could manually add sequences that contain only missing data to all those alignments that have less than 20 sequences, but there are also other and easier ways to do this.
+	
+We'll use a Ruby script to concatenate all ten alignments into a single file, which we'll then reimport into BEAUti. If you have the Ruby programming language installed on your local computer, you can continue the next steps on your local computer. If not, copy (or re-download) the ten alignment files into the tutorial directory on lynx, and continue the next steps there.
 
-* On Saga, download a Ruby script to concatenate alignments:
+* Download the Ruby script to concatenate alignments:
 
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/concatenate.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/bayesian_phylogeny_inference/scripts/concatenate.rb
 		
 * Have a look at the help text of this script:
 
-		module load Ruby/2.7.2-GCCcore-9.3.0
 		ruby concatenate.rb -h
 
 	You'll see that besides options `-i`, `-o`, and `-f` for the input and output file names and the output format, the script also has an option (`-p`) to write a partitions block for output files in Nexus and Phylip format.
 	
 * Use this script to concatenate all alignment files into a single file named `hughes_etal_10_orthologs_20_species.nex`, and specify that this output file should also be in Nexus format (`-f nexus`) and have a partitions block (`-p`):
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby concatenate.rb -i hughes_etal_10_orthologs_20_species/*.nex -o hughes_etal_10_orthologs_20_species.nex -f nexus -p
+		ruby concatenate.rb -i hughes_etal_10_orthologs_20_species/*.nex -o hughes_etal_10_orthologs_20_species.nex -f nexus -p
 
 * Then, have a look at file `hughes_etal_10_orthologs_20_species.nex` with `less -S`:
 
@@ -122,7 +123,7 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 
 	As you'll see, there is now just a single concateated alignment in this file, with a total length of 2,667 sites (this is specified on the fourth line with `nchar=`). However, the information about the boundaries of each original alignment is not lost, but instead stored in the partitions block at the bottom of the file: The first 195 sites came from "locus\_0001", the sites 196 to 399 came from "locus\_0002", and so on.
 	
-* Download file `hughes_etal_10_orthologs_20_species.nex` again to your local computer.
+* If you did the last steps on lynx, download file `hughes_etal_10_orthologs_20_species.nex` from there to your local computer, using `scp`.
 
 * In BEAUti, remove all partitions by selecting them and clicking the small button with a "-" symbol at the bottom left of the window.
 
@@ -136,11 +137,11 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 
 * With all partitions still selected, also click on "Link Clock Models". This means that the clock model that we will select will apply to all partitions equally.
 
-	With the relaxed clock model that we will select, this means that some branches are allowed to evolve faster than other branches (= to have higher substitution rates than others), but that this variation in rates is not inferred separately for each gene. Thus, branches that are inferred to have a comparatively high rate in partition will also receive a comparatively high rate for each of the other partitions. Vice versa, a branch that is inferred to evolve comparatively slowly is assumed to evolve slowly for all partitions. However, this branch will still be allowed to have a higher absolute rate in one partition compared to another partition because the branch rates specified by the clock model (one rate per branch) will still be multiplied by a partition-specific rate multiplier (so that in total we then have ten rates per branch: one for each partition). A good justification for this linking of clock models is that in nature, the speed of the molecular clock often depends on factors that are species-specific, such as metabolism and generation time ([Moorjani et al. 2016](http://www.pnas.org/content/113/38/10607.long)). This means that a species with a short generation time will be expected to have a comparatively slow rate not only in one gene but in all its genes. A more practical justification for the linking is that it reduces the run time substantially.
+	With the relaxed clock model that we will select, this means that some branches are allowed to evolve faster than other branches (= to have higher substitution rates than others), but that this variation in rates is not inferred separately for each gene. Thus, branches that are inferred to have a comparatively high rate in one partition will also receive a comparatively high rate for each of the other partitions. Vice versa, a branch that is inferred to evolve comparatively slowly is assumed to evolve slowly for all partitions. However, this branch will still be allowed to have a higher absolute rate in one partition compared to another partition because the branch rates specified by the clock model (one rate per branch) will still be multiplied by a partition-specific rate multiplier (so that in total we then have ten rates per branch: one for each partition). A good justification for this linking of clock models is that in nature, the speed of the molecular clock often depends on factors that are species-specific, such as metabolism and generation time ([Moorjani et al. 2016](http://www.pnas.org/content/113/38/10607.long)). This means that a species with a short generation time will be expected to have a comparatively slow rate not only in one gene but in all its genes. A more practical justification for the linking is that it reduces the run time substantially.
 
 	After clicking on "Link Clock Models", the BEAUti window should look as shown in the screenshot below. Note that all cells in the "Clock Model" column now have the label "locus\_0001".<p align="center"><img src="img/beauti7.png" alt="BEAUti" width="700"></p>
 
-* The settings in the "Partitions" tab are now complete. Skip the next tab called "Tip Dates". This tab could be used to specify the times at which samples were taken, which allows time-calibration of viral phylogenies. But compared to the time scales over which the 20 fish species have diverged, the small difference in sampling times (a few years) is completely negligible, so we can safely ignore these. Thus, click on the "Site Model" tab next. In this tab we can specify the substitution models for all four partitions. Select the "locus\_0001" partition in the panel at the left and click on the drop-down menu that currently says "JC69". Instead of the Jukes-Cantor model, use the GTR model, which allows different substitution rates for all transitions and transversions. Also specify "4" in the field for the "Gamma Category Count" two lines above, to use a gamma model of rate variation with four rate categories. Finally, set a tick in the checkbox to the right of "Substitution Rate" so that this rate will be estimated. The BEAUti window should then look as shown in the screenshot below.<p align="center"><img src="img/beauti8.png" alt="BEAUti" width="700"></p>
+* The settings in the "Partitions" tab are now complete. Skip the next tab called "Tip Dates". This tab could be used to specify the times at which samples were taken, which allows time-calibration of viral phylogenies. But compared to the time scales over which the 20 fish species have diverged, the small differences in sampling times (a few years) are completely negligible, so we can safely ignore these. Thus, click on the "Site Model" tab next. In this tab we can specify the substitution models for all four partitions. Select the "locus\_0001" partition in the panel at the left and click on the drop-down menu that currently says "JC69". Instead of the Jukes-Cantor model, use the GTR model, which allows different substitution rates for all transitions and transversions. Also specify "4" in the field for the "Gamma Category Count" two lines above, to use a gamma model of rate variation with four rate categories. Finally, set a tick in the checkbox to the right of "Substitution Rate" so that this rate will be estimated. The BEAUti window should then look as shown in the screenshot below.<p align="center"><img src="img/beauti8.png" alt="BEAUti" width="700"></p>
 
 * Still in the "Site Model" tab, select all ten partitions in the panel at the left of the window. The main part of the window should then show the option "Clone from locus\_0001" as in the screenshot below. Click "OK" to use the same site model as for "locus\_0001" for all partitions.<p align="center"><img src="img/beauti9.png" alt="BEAUti" width="700"></p>
 
@@ -172,11 +173,11 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 
 * When the window looks as in the below screenshot, click on "Save" in BEAUti's "File" menu, and name the resulting file in XML format `beast2.xml`.<p align="center"><img src="img/beauti17.png" alt="BEAUti" width="700"></p>
 
-* Upload the XML input file form BEAST2 to Saga using `scp`.
+* Upload the XML input file form BEAST2 to lynx using `scp`.
 
 	If anything should have gone wrong during the preparation of the XML input file `beast2.xml` with BEAUti, you can alternatively find a prepared version of the file in directory `/cluster/projects/nn9458k/phylogenomics/week2/res` on Saga, or download it from GitHub with `wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_res/beast2.xml`.
 
-* To run BEAST2 on Saga, we will still need to write a Slurm script so that we can submit the analysis for execution on the cluster. Thus, open a new file named `run_beast2.slurm` with a text editor available on Saga, such as Emacs:
+* To run BEAST2 on lynx, we will still need to write a Slurm script so that we can submit the analysis for execution on the cluster. Thus, open a new file named `run_beast2.slurm` with a text editor available on lynx, such as Emacs:
 
 		emacs run_beast2.slurm
 		
@@ -194,22 +195,11 @@ In this part of the tutorial, we will run a basic Bayesian phylogenetic analysis
 		#SBATCH --ntasks=1
 		#SBATCH --mem-per-cpu=1G
 		#
-		# Accounting:
-		#SBATCH --account=nn9458k
-		#
 		# Output:
 		#SBATCH --output=run_beast2.out
 
-		# Set up job environment.
-		set -o errexit  # Exit the script on any error
-		set -o nounset  # Treat any unset variables as an error
-		module --quiet purge  # Reset the modules to the system default
-
-		# Load the beast2 module.
-		module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
-
 		# Run beast2.
-		beast beast2.xml
+		beast2 beast2.xml
 
 To assess completeness of BEAST2 (or generally Bayesian) analyses, it is important to run multiple replicate analyses with the same input file. Only when these show the same result can the analysis be considered "converged". An easy way to set up multiple replicate analyses with the same input file is to copy the input file and the corresponding Slurm script into two or more subdirectories, and then submit the Slurm scripts individually in each of them.
 
