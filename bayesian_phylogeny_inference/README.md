@@ -31,7 +31,7 @@ In this tutorial, I will demonstrate how time-calibrated phylogenies can be infe
 <a name="dataset"></a>
 ## Dataset
 
-The data used in this tutorial are the sequence alignments for 100 orthologous genes of 41 teleost fish species from the study of [Hughes et al. (2018)](https://doi.org/10.1073/pnas.1719358115). This dataset will be further reduced to 10 genes for the 20 species of teleost fishes listed below, to limit the run times of the Bayesian analyses with BEAST2.
+The data used in this tutorial are a subset of those used in the study of [Hughes et al. (2018)](https://doi.org/10.1073/pnas.1719358115). In their study, Hughes et al. analysed the relationships of over 300 fish species with over 1'100 alignments. Here, we use only 10 of these alignments, with sequences for the 20 species of teleost fishes listed below, to limit the run times of the Bayesian analyses with BEAST2.
 
 <center>
 
@@ -68,9 +68,9 @@ Note that the last species, *Astatotilapia burtoni*, is named *Haplochromis burt
 * **BEAST2:** The BEAST2 package, including BEAUti, BEAST2 itself, TreeAnnotator, and other tools can be downloaded from the BEAST2 website [https://www.beast2.org](https://www.beast2.org). As all these programs are written in Java, compilation is not required, and all programs should work on Mac OS X, Linux, and Windows.<br>
 
 
-* **bModelTest:** The [bModelTest](https://github.com/BEAST2-Dev/bModelTest) ([Bouckaert and Drummond 2017](https://bmcevolbiol.biomedcentral.com/articles/10.1186/s12862-017-0890-6)) add-on package enables automated substitution model selection as part of BEAST2 analyses. This package needs to be installed both on Saga and on your local computer, because it will be required during the BEAST2 analysis (which will be executed on Saga) and for the setup and the interpretation of BEAST2 results (which will be done on the local computer). In both cases, BEAST2's PackageManager tool is used for the installation, but the PackageManager is called differently; from the command line on Saga, and through BEAUti on the local computer.
+* **bModelTest:** The [bModelTest](https://github.com/BEAST2-Dev/bModelTest) ([Bouckaert and Drummond 2017](https://bmcevolbiol.biomedcentral.com/articles/10.1186/s12862-017-0890-6)) add-on package enables automated substitution model selection as part of BEAST2 analyses. This package needs to be installed both on lynx and on your local computer, because it will be required during the BEAST2 analysis (which will be executed on lynx) and for the setup and the interpretation of BEAST2 results (which will be done on the local computer). In both cases, BEAST2's PackageManager tool is used for the installation, but the PackageManager is called differently; from the command line on lynx, and through BEAUti on the local computer.
 
-	To install bModelTest with BEAST2's PackageManager on Saga, use the following commands:
+	To install bModelTest with BEAST2's PackageManager on lynx, use the following commands:
 
 		module purge
 		module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
@@ -79,9 +79,10 @@ Note that the last species, *Astatotilapia burtoni*, is named *Haplochromis burt
 	On your local computer, BEAST2's PackageManager is accessible through BEAUti. To find it, open BEAUti, and click on "Manage Packages" in BEAUti's "File" menu, as shown in the next screenshot.<p align="center"><img src="img/beauti1.png" alt="BEAUti" width="700"></p>
 	This will open the BEAST2 Package Manager as shown in the next screenshot. Select "bModelTest" and click on "Install/Upgrade".<p align="center"><img src="img/beauti2.png" alt="BEAUti" width="700"></p>You will see a notice that any changes will only take effect after you restart BEAUti; thus, do so.
 
-* **Tracer:** The program [Tracer](http://beast.community/tracer) greatly facilitates the inspection of output from Bayesian analyses such as those done with BEAST2. It is a GUI program that therefore can not be used on Saga, but it is easy to install on your local computer. Input files for Tracer will thus need to be downloaded from Saga. Executables of Tracer for MacOS, Linux, and Window can be found on [https://github.com/beast-dev/tracer/releases](https://github.com/beast-dev/tracer/releases). Download the file [Tracer.v1.7.2.dmg](https://github.com/beast-dev/tracer/releases/download/v1.7.2/Tracer.v1.7.2.dmg) if your local computer is running MacOS, [Tracer_v1.7.2.tgz](https://github.com/beast-dev/tracer/releases/download/v1.7.2/Tracer_v1.7.2.tgz) if it is running Linux, and [Tracer_v1.7.2.tgz](https://github.com/beast-dev/tracer/releases/download/v1.7.2/Tracer_v1.7.2.tgz) if it is running Windows.
+* **Tracer:** The program [Tracer](http://beast.community/tracer) needs to be installed on your local computer (see [Requirements](../requirements.md)).
 
-* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is a very intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Being a GUI program, FigTree can not be run on Saga, but needs to be installed and used on your local computer. Input files for FigTree will thus need to be downloaded from Saga. Executables of FigTree for Mac OS X, Linux, and Windows are provided on [https://github.com/rambaut/figtree/releases](https://github.com/rambaut/figtree/releases). Download the file [FigTree.v1.4.4.dmg](https://github.com/rambaut/figtree/releases/download/v1.4.4/FigTree.v1.4.4.dmg) if your local computer is running MacOS, [FigTree_v1.4.4.tgz](https://github.com/rambaut/figtree/releases/download/v1.4.4/FigTree_v1.4.4.tgz) if it is running Linux, and [FigTree.v1.4.4.zip](https://github.com/rambaut/figtree/releases/download/v1.4.4/FigTree.v1.4.4.zip) if it is running Windows.
+
+* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) needs to be installed on your local computer (see [Requirements](../requirements.md)).
 
 <a name="preparation"></a>
 ## Dataset preparation
