@@ -175,7 +175,7 @@ We'll use a Ruby script to concatenate all ten alignments into a single file, wh
 
 * Upload the XML input file form BEAST2 to lynx using `scp`.
 
-	If anything should have gone wrong during the preparation of the XML input file `beast2.xml` with BEAUti, you can alternatively find a prepared version of the file in directory `/cluster/projects/nn9458k/phylogenomics/week2/res` on Saga, or download it from GitHub with `wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_res/beast2.xml`.
+	If anything should have gone wrong during the preparation of the XML input file `beast2.xml` with BEAUti, you can download a working version of that file from GitHub with `wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/bayesian_phylogeny_inference/res/beast2.xml`.
 
 * To run BEAST2 on lynx, we will still need to write a Slurm script so that we can submit the analysis for execution on the cluster. Thus, open a new file named `run_beast2.slurm` with a text editor available on lynx, such as Emacs:
 
@@ -232,7 +232,7 @@ To assess completeness of BEAST2 (or generally Bayesian) analyses, it is importa
 
 	You can tell from the fifth and sixth columns of the output of the above command whether your analysis is running: The fifth column shows an "R" as soon as the analysis started, and the sixth column shows the elapsed run time.
 
-While the two BEAST2 analyses are running, you may continue with the next part of this tutorial. The results of these analyses and of the analysis described below will be investigated and compared after all analyses have completed.
+While the two BEAST2 analysis replicates are running, you may continue with the next part of this tutorial. The results of these analyses and of the analysis described below will be investigated and compared after all analyses have completed.
 
 
 <a name="bmodeltest"></a>
@@ -246,7 +246,7 @@ In the above phylogenetic inference, we assumed that the GTR substitution model 
 
 * Click on "BEAST Model Test" to select this model. The window should then show a different set of options.
 
-* Again set the tick to the right of "Mutation Rate" to specify that this rate should be estimated. The window should then look as in the next screenshot.<p align="center"><img src="img/beauti19.png" alt="BEAUti" width="700"></p>
+* Again set the tick to the right of "Mutation Rate" to specify that this rate should be estimated. The window should then look as in the next screenshot.<p align="center"><img src="img/beauti19.png" alt="BEAUti" width="700"></p>Keep "transitionTransversionSplit" as the selected set of models. This set includes 30 substitution models that all have in common that transitions and transversions have different rates, plus the [Jukes-Cantor model](http://dx.doi.org/10.1016/B978-1-4832-3211-9.50009-7) in which all rates are identical. Details about all available sets of models can be found in [Bouckaert and Drummond (2017)](https://doi.org/10.1186/s12862-017-0890-6).
 
 * As before, select all partitions in the panel at the left of the window, and click "OK" to clone the settings from the first partition to all other partitions, as shown in the next screenshot.<p align="center"><img src="img/beauti20.png" alt="BEAUti" width="700"></p>
 
@@ -254,7 +254,11 @@ In the above phylogenetic inference, we assumed that the GTR substitution model 
 
 * Finally, click "Save As" in BEAUti's "File" menu and save the analysis settings to a new file named `bmodeltest.xml`.
 
-* Upload this XML input file for BEAST2 to Saga using `scp`.
+* Upload this XML input file for BEAST2 to lynx using `scp`.
+
+* Make sure that the bModelTest add-on package for BEAST2 is installed and available for you on lynx:
+
+		packagemanager -add bModelTest
 
 * To run BEAST2 with the file `bmodeltest.xml`, we'll need a new Slurm script. On Saga, copy the existing Slurm script `run_beast2.slurm` to a new file named `run_bmodeltest.slurm`:
 
@@ -264,36 +268,25 @@ In the above phylogenetic inference, we assumed that the GTR substitution model 
 
 		emacs run_bmodeltest.slurm
 		
-* Replace "beast2" with "bmodeltest" on lines 4, 17, and 28, so that file `run_bmodeltest.slurm` has the following content:
+* Replace "beast2" with "bmodeltest" on lines 4, 14, and 17, so that file `run_bmodeltest.slurm` has the following content:
 
-		#!/bin/bash
+		#!/bin/bash                                                                                                                                                                                                      
 
-		# Job name:
-		#SBATCH --job-name=bmodeltest
-		# 
-		# Wall clock limit:
-		#SBATCH --time=2:00:00
-		# 
-		# Processor and memory usage:
-		#SBATCH --ntasks=1
-		#SBATCH --mem-per-cpu=1G
-		# 
-		# Accounting:
-		#SBATCH --account=nn9458k
-		# 
-		# Output:
-		#SBATCH --output=run_bmodeltest.out
+		# Job name:                                                                                                                                                                                                      
+		#SBATCH --job-name=bmodeltest                                                                                                                                                                                    
+		#                                                                                                                                                                                                                
+		# Wall clock limit:                                                                                                                                                                                              
+		#SBATCH --time=2:00:00                                                                                                                                                                                           
+		#                                                                                                                                                                                                                
+		# Processor and memory usage:                                                                                                                                                                                    
+		#SBATCH --ntasks=1                                                                                                                                                                                               
+		#SBATCH --mem-per-cpu=1G                                                                                                                                                                                         
+		#                                                                                                                                                                                                                
+		# Output:                                                                                                                                                                                                        
+		#SBATCH --output=run_bmodeltest.out                                                                                                                                                                              
 
-		# Set up job environment.
-		set -o errexit  # Exit the script on any error
-		set -o nounset  # Treat any unset variables as an error
-		module --quiet purge  # Reset the modules to the system default
-
-		# Load the beast2 module.
-		module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
-
-		# Run beast2.
-		beast bmodeltest.xml
+		# Run beast2.                                                                                                                                                                                                    
+		beast2 bmodeltest.xml
 
 * Then, close and save the text editor, and submit the Slurm script with `sbatch`:
 
@@ -307,7 +300,7 @@ In the above phylogenetic inference, we assumed that the GTR substitution model 
 		less r02/run_beast2.out
 		less run_bmodeltest.out
 
-	When you scroll to the end any of these output files, you'll find a table written by BEAST2, with information for "Sample", "posterior", "likelihood", "prior", and an estimate of the run time per million samples. Here "sample" refers to the iteration of the MCMC, and the "posterior", "likelihood", and "prior" are the log values of the posterior probability, the likelihood, and the prior probability, respectively, for the corresponding MCMC iteration. These values should initially change rapidly but become stationary after a while. Note that to track the progress of BEAST2, you may have to repeatedly close and open these files, so that you can see the lines that have been added to the end of it since you last opened the file.
+	When you scroll through any of these files, you'll find a very long table written by BEAST2, with information for "Sample", "posterior", "likelihood", "prior", and an estimate of the run time per million samples. Here "sample" refers to the iteration of the MCMC, and the "posterior", "likelihood", and "prior" are the log values of the posterior probability, the likelihood, and the prior probability, respectively, for the corresponding MCMC iteration. These values should initially change rapidly but become stationary after a while. Note that to track the progress of BEAST2, you may have to repeatedly close and open these files, so that you can see the lines that have been added to the end of it since you last opened the file.
 	
 	 **Question 1:** How long does each analysis require per one million MCMC iterations? Is one of them faster? [(see answer)](#q1)
 
@@ -323,7 +316,7 @@ In Bayesian analyses with the software BEAST2, it is rarely possible to tell *a 
 <a name="stationarity"></a>
 ### Assessing MCMC stationarity with Tracer
 
-There are various ways to assess whether or not an MCMC analysis is "stationary", and in the context of phylogenetic analyses with BEAST2, the most commonly used diagnostic tools are those implemented in [Tracer](http://beast.community/tracer) ([Rambaut et al. 2018](https://academic.oup.com/sysbio/advance-article/doi/10.1093/sysbio/syy032/4989127)) or the R package [coda](https://cran.r-project.org/web/packages/coda/index.html) ([Plummer et al. 2006](https://cran.r-project.org/doc/Rnews/Rnews_2006-1.pdf#page=7)). Here, we are going to investigate MCMC stationary with Tracer. The easiest ways to do this in Tracer are:
+There are various ways to assess whether or not an MCMC analysis is "stationary", and in the context of phylogenetic analyses with BEAST2, the most commonly used diagnostic tools are those implemented in [Tracer](http://beast.community/tracer) ([Rambaut et al. 2018](https://doi.org/10.1093/sysbio/syy032)) or the R package [coda](https://cran.r-project.org/web/packages/coda/index.html) ([Plummer et al. 2006](https://cran.r-project.org/doc/Rnews/Rnews_2006-1.pdf#page=7)). Here, we are going to investigate MCMC stationary with Tracer. The easiest ways to do this in Tracer are:
 
 1. Calculation of "effective sample sizes" (ESS). Because consecutive MCMC iterations are always highly correlated, the number of effectively independent samples obtained for each parameter is generally much lower than the total number of sampled iterations. Calculating ESS values for each parameter is a way to assess the number of independent samples that would be equivalent to the much larger number of auto-correlated samples drawn for these parameters. These ESS values are automatically calculated for each parameter by Tracer. As a rule of thumb, the ESS values of all model parameters, or at least of all parameters of interest, should be above 200.
 2. Visual investigation of trace plots. The traces of all parameter estimates, or at least of those parameters with low ESS values should be visually inspected to assess MCMC stationarity. A good indicator of stationarity is when the trace plot has similarities to a "hairy caterpillar". While this comparison might sound odd, you'll understand its meaning when you see such a trace plot in Tracer.
@@ -351,7 +344,7 @@ Thus, both the calculation of ESS values as well as the visual inspection of tra
 	**Question 3:** Besides the prior and posterior probabilities, which parameter has the lowest ESS value? [(see answer)](#q3)
 	**Question 4:** Could this parameter be responsible for the low ESS value of the prior probability? [(see answer)](#q4)
 
-* To find out why the estimation of the A &rarr; T substitution rate seems to be difficult for the second partition, we can use a Ruby script to calculate the number of sites in an alignment at which each pair of nucleotides co-occur. Download this script to your working directory on Saga:
+* To find out why the estimation of the A &rarr; T substitution rate (or any other substitution rate that may have a particularly low ESS value in your analysis) seems to be difficult for the respective partition, we can use a Ruby script to calculate the number of sites in the alignment at which each pair of nucleotides co-occur. Download this script to your working directory on Saga:
 
 		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/count_substitutions.rb
 
@@ -462,7 +455,7 @@ According to the BEAST2 analyses of this tutorial, African and Neotrocial cichli
 
 <a name="q1"></a>
 
-* **Question 1:** As you should be able to see from the fifth column of the output, the times required per one million iterations should be very comparable between the three analyses. About 6–8 minutes should be required in all cases, with the analysis of file `bmodeltest.xml` perhaps being slightly faster. Thus, to complete the 10 million iterations specified in both XML files, run times of 60–80 minutes will be required.
+* **Question 1:** As you should be able to see from the fifth column of the output, the times required per one million iterations should be very comparable between the three analyses. Around 5 minutes should be required in all cases, with the analysis of file `bmodeltest.xml` perhaps being slightly faster. Thus, to complete the 10 million iterations specified in both XML files, run times of close to an hour will be required.
 
 <a name="q2"></a>
 
@@ -474,7 +467,7 @@ According to the BEAST2 analyses of this tutorial, African and Neotrocial cichli
 
 <a name="q4"></a>
 
-* **Question 4:** In my analysis (file `beast2.log`), the parameter for the rate of A &rarr; T substitutions in the second partition in fact seems to influence the prior probability. This is suggested by the apparently coinciding shifts in both traces, as shown in the next two screenshots.<p align="center"><img src="img/tracer4.png" alt="Tracer" width="700"></p><p align="center"><img src="img/tracer5.png" alt="Tracer" width="700"></p>The correlation between the A &rarr; T rate parameter for the second partition and the prior probability is also apparent when the two values are plotted against each other, by again selecting both of them and clicking the "Joint-Marginal" tab. The prior probability is relatively high when the substitution rate is extremely close to zero.<p align="center"><img src="img/tracer6.png" alt="Tracer" width="700"></p>This strong effect of the A &rarr; T substitution rate parameter on the overall prior probability can be explained when we look at the prior-probability density that we had placed on this parameter (just like on other substitution rates; this is a default prior-probability density for all rates when using the GTR model in BEAST2): This prior-probability density is specified in file `beast2.xml` as follows:
+* **Question 4:** In my analysis, the parameter for the rate of A &rarr; T substitutions in the third partition in fact seems to influence the prior probability. This is suggested by the apparently coinciding shifts in both traces, as shown in the next two screenshots.<p align="center"><img src="img/tracer4.png" alt="Tracer" width="700"></p><p align="center"><img src="img/tracer5.png" alt="Tracer" width="700"></p>The correlation between the A &rarr; T rate parameter for the third partition and the prior probability is also apparent when the two values are plotted against each other, by again selecting both of them and clicking the "Joint-Marginal" tab. The prior probability is relatively high when the substitution rate is extremely close to zero.<p align="center"><img src="img/tracer6.png" alt="Tracer" width="700"></p>This strong effect of the A &rarr; T substitution rate parameter on the overall prior probability can be explained when we look at the prior-probability density that we had placed on this parameter (just like on other substitution rates; this is a default prior-probability density for all rates when using the GTR model in BEAST2): This prior-probability density is specified in file `beast2.xml` as follows:
 
 		<prior id="RateATPrior.s:locus_0003" name="distribution" x="@rateAT.s:locus_0003">
 			<Gamma id="Gamma.2.locus_0003" name="distr">
@@ -512,7 +505,7 @@ According to the BEAST2 analyses of this tutorial, African and Neotrocial cichli
 
 <a name="q11"></a>
 
-* **Question 11:** Cichlinae are represented in the dataset only by the Midas cichlid (*Amphilophus citrinellus*) while Pseudocrenilabrinae are represented by Nile tilapia (*Oreochromis niloticus*) and Burton's mouthbrooder (*Astatotilapia burtoni*; named *Haplochromis burtoni* in the alignments from Hughes et al. (2018)). In my analysis with the bModelTest model, these two groups diverged around 29.8 million years ago, with a 95% HPD interval from 35.0 to 24.8 million years ago. To see this ages, you can set FigTree to display first "Node Ages" and then "height_95%_HPD" as node labels. Another and perhaps more convenient way to see the age estimate for this divergence would have been to use Tracer instead of FigTree: The parameter named "mrca.age(Cichlidae)", that is listed in the parameter list because we had defined a monophyly constraint for Cichlidae, corresponds to the divergence between Cichlinae and Pseudocrenilabrinae, and the mean estimate, the 95% HPD interval, and a histogram of the posterior distribution of that parameter are all reported by Tracer, as shown in the screenshot below.<p align="center"><img src="img/tracer14.png" alt="Tracer" width="700"></p>
+* **Question 11:** Cichlinae are represented in the dataset only by the Midas cichlid (*Amphilophus citrinellus*) while Pseudocrenilabrinae are represented by Nile tilapia (*Oreochromis niloticus*) and Burton's mouthbrooder (*Astatotilapia burtoni*; named *Haplochromis burtoni* in the alignments from [Hughes et al. (2018)](https://doi.org/10.1073/pnas.1719358115)). In my analysis with the bModelTest model, these two groups diverged around 29.8 million years ago, with a 95% HPD interval from 35.0 to 24.8 million years ago. To see this ages, you can set FigTree to display first "Node Ages" and then "height_95%_HPD" as node labels. Another and perhaps more convenient way to see the age estimate for this divergence would have been to use Tracer instead of FigTree: The parameter named "mrca.age(Cichlidae)", that is listed in the parameter list because we had defined a monophyly constraint for Cichlidae, corresponds to the divergence between Cichlinae and Pseudocrenilabrinae, and the mean estimate, the 95% HPD interval, and a histogram of the posterior distribution of that parameter are all reported by Tracer, as shown in the screenshot below.<p align="center"><img src="img/tracer14.png" alt="Tracer" width="700"></p>
 
 
 <a name="q12"></a>
