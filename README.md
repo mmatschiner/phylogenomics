@@ -15,10 +15,11 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 * [Bayesian Phylogenetic Inference](bayesian_phylogeny_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated phylogenies
 
 <!--
-* [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils
+* [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils-->
 
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
 
+<!--
 ## Day 2
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees
