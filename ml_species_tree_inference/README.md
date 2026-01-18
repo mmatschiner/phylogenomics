@@ -63,7 +63,7 @@ The dataset used in this tutorial is a set of alignments for 72 genes, extracted
 		java -jar Astral/astral.5.7.8.jar
 -->
 
-* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in ASTER* (Accurate Species Tree EstimatoR) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
+* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in [ASTER* (Accurate Species Tree EstimatoR)]((https://github.com/chaoszhang/ASTER)) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
 		
 		wget https://github.com/chaoszhang/ASTER/archive/refs/heads/Linux.zip
 		unzip Linux.zip
@@ -101,13 +101,13 @@ As input for the species-tree analyses with ASTRAL, sets of gene trees are requi
 
 Since IQ-TREE cannot infer the phylogeny from an alignment in which one or more sequences consist only of missing data, we will need to remove the "ophven" sequence from all those alignments in which it contains no information. This means that *Ophthalmotilapia ventralis* will only be included in a subset of the gene trees generated with IQ-TREE; however, this will fortunately not be a problem for the species-tree inference because ASTRAL does not require that all gene trees contain the exact same set of taxa. To remove sequences that contain only missing information from all alignments, and at the same time translate all alignments into Nexus format, we can use the Python script `convert.py`.
 
-* Download the script `convert.py` from GitHub:
+* Download the script `convert.py` from GitHub to your tutorial directory on lynx:
 
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/convert.py
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/ml_species_tree_inference/scripts/convert.py
 
-* Open a new file named `remove_empty_sequences.sh` with a text editor available on Saga, such as Emacs:
+* Open a new file named `remove_empty_sequences.sh` with a text editor available on lynx, such as Emacs:
 
-		emacs remove_empty_sequences.sh 
+		emacs remove_empty_sequences.sh
 
 * Write the following content to the new file:
 
@@ -115,15 +115,14 @@ Since IQ-TREE cannot infer the phylogeny from an alignment in which one or more 
 		for fasta in 72_genes/*.fasta
 		do
 			gene_id=`basename ${fasta%.fasta}`
-			python convert.py ${fasta} 72_genes/${gene_id}.nex -f nexus -m 0.9
+			python3 convert.py ${fasta} 72_genes/${gene_id}.nex -f nexus -m 0.9
 		done
 
 	(the `-m` option specifies the maximally allowed proportion of missing data per sequence; setting it to 0.9 thus removes all sequences that are less than 10% complete).
 
-* Execute this new script with `srun`:
+* Execute this new script with `bash`:
 
-		module load Python/3.8.2-GCCcore-9.3.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bash remove_empty_sequences.sh
+		bash remove_empty_sequences.sh
 
 	This should have produced a new file in Nexus format for each file in Fasta format in the directory `72_genes`. These new files in Nexus format contain the same sequences as the corresponding files in Fasta format except that completely missing sequences have been removed.
 	
@@ -131,23 +130,22 @@ Since IQ-TREE cannot infer the phylogeny from an alignment in which one or more 
 
 		ls 72_genes/*.nex | wc -l
 
-We can now use IQ-TREE to generate maximum-likelihood gene trees for all alignments. To be able to later use bootstrapping with ASTRAL, we will also generate sets of trees from bootstrapped gene alignments in the same IQ-TREE analysis, by using the IQ-TREE option `-B`. Instead of specifying a substition model with the `-m` option, we allow IQ-TREE to automatically select the best-fitting model (this is the default when `-m` is not used). We will ensure that the bootstrap trees are actually written to a file, and not just summarized in the output, by specifying the option `--wbt`. To start IQ-TREE in a loop so that it analyzes one gene alignment after the other, we need to write another short script.
+We can now use IQ-TREE to generate maximum-likelihood gene trees for all alignments. To be able to use node support values as input for Weighted ASTRAL (wASTRAL; installed as part of ASTER\*; [Zhang and Mirarab 2022](https://doi.org/10.1093/molbev/msac215)), we will also estimate node support through bootstrapping in the same IQ-TREE analysis, by using the IQ-TREE option `-B`. Instead of specifying a substition model with the `-m` option, we allow IQ-TREE to automatically select the best-fitting model (this is the default when `-m` is not used). Additionally, we use the `-o` option to specify that the two cichlid species from the Neotropics (*Amphilophus citrinellus* and *Andinoacara coeruleopunctatus*; "ampcit" and "andcoe") are the outgroup to all African sister species (this has long been supported by morphological and molecular studies). To start IQ-TREE in a loop so that it analyzes one gene alignment after the other, we need to write another short script.
 
 * Open a new file named `run_iqtree.sh` and write the following commands to it:
 
 		for nex in 72_genes/*.nex
 		do
-			iqtree2 -s ${nex} -B 1000 --wbt
+			iqtree3 -s ${nex} -B 1000 -o ampcit,andcoe
 		done
 		
-* Execute this script with `srun`:
+* Execute this script with `bash`:
 
-		module load IQ-TREE/2.1.2-foss-2020a
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty bash run_iqtree.sh
+		bash run_iqtree.sh
 
 	The 72 IQ-TREE analyses should finish within a few minutes.
 	
-* The IQ-TREE analyses will have generated a number of files for each gene, containing run info, a distance matrix, starting trees, and so on. The only output files required for our further analyses are those ending in `.treefile` (the maximum-likelihood gene trees with branch lengths) and `.ufboot` (the set of bootstrap trees without branch lengths). To clean up the directory and keep only the important files, use the following commands:
+* The IQ-TREE analyses will have generated a number of files for each gene, containing run info, a distance matrix, starting trees, and so on. The only output files required for our further analyses are those ending in `.treefile` (the maximum-likelihood gene trees with branch lengths). To clean up the directory and keep only the important files, use the following commands:
 
 		rm 72_genes/*.bionj
 		rm 72_genes/*.ckp.gz
@@ -176,49 +174,56 @@ We can now use IQ-TREE to generate maximum-likelihood gene trees for all alignme
 <a name="astral"></a>
 ## Species-Tree Inference with ASTRAL
 
-ASTRAL infers the species tree by searching for the topology that agrees with the largest number of species quartets included in the set of gene trees. In addition, branch lengths are estimated in coalescent units based on the number of quartets that are in conflict with a branch of the species tree. Unlike concatenation, the species-tree approach of ASTRAL has been shown to be statistically consistent under the multi-species coalescent model ([Mirarab et al. 2014](https://doi.org/10.1093/bioinformatics/btu462)), meaning that its species-tree estimate is guaranteed to converge to the correct species tree with increasing size of the dataset. However, this statistical consistency is based on the assumption that gene-tree topologies are inferred without error, which may often not be the case. Thus, one might want to take uncertainty in the gene trees into account, which can be done with the sets of bootstrap trees for each gene. In this case, ASTRAL uses the maximum-likelihood trees to infer the species-tree topology and branch lengths, and additional analyses of the bootstrap trees are used to quantify node support as the proportions of these trees supporting a given node. However, ASTRAL is also able to quantify node support completely without bootstrapped trees, based on the maximum-likelihood gene trees alone. Thus, uncertainty in the gene trees is then not taken into account at all. Nevertheless, simulations have shown that this approach works just as well as or even better than the first approach based on bootstrapped trees ([Sayyari and Mirarab 2016](https://doi.org/10.1093/molbev/msw079)). Here, we will test both approaches for quantifying node support with ASTRAL.
+ASTRAL infers the species tree by searching for the topology that agrees with the largest number of species quartets included in the set of gene trees. In addition, branch lengths are estimated in units of substitutions per site, based on branch lenghts in the input gene trees and under the implemented CASTLES method ([Tabatabaee et al. 2023](https://doi.org/10.1093/bioinformatics/btad221)). Unlike concatenation, the species-tree approach of ASTRAL has been shown to be statistically consistent under the multi-species coalescent model ([Mirarab et al. 2014](https://doi.org/10.1093/bioinformatics/btu462)), meaning that its species-tree estimate is guaranteed to converge to the correct species tree with increasing size of the dataset. However, this statistical consistency is based on the assumption that gene-tree topologies are inferred without error, which may often not be the case. Thus, one might want to take uncertainty in the gene trees into account. This can be done with the Weighted ASTRAL (wASTRAL) method ([Zhang and Mirarab 2022](https://doi.org/10.1093/molbev/msac215)) when the gene trees contain node support information, for example in the form of bootstrap values. Weighted ASTRAL uses this information to weigh species quartets in individual gene trees by their support values, which has been shown to improve the reliability of the resulting species trees ([Zhang and Mirarab 2022](https://doi.org/10.1093/molbev/msac215)). Besides node support values, wASTRAL can also use the branch lengths of gene trees as a measure of node support, either alone or in combination with node support values. Because our input gene trees contain both node support values and branch lengths, and because ASTRAL analyses are extremely fast and easy to set up, we are going to test all three alternative weighing schemes, in addition to an analysis without any weighing.
 
-* We'll first use the set of bootstrapped trees to estimate node support on the species tree. To do so, ASTRAL requires as input a single file with the names of all the files containing bootstrapped trees. We can generate such a file with the following command:
+* As input, ASTRAL requires a single file with the names of all the files containing bootstrapped trees. We can generate such a file with the following command:
 
 		ls 72_genes/*.ufboot > ml_boot.txt
-		
-* We can then run ASTRAL with two input files: The file containing the maximum-likelihood trees for each gene (`ml_best.trees`), and the file containing the names of all files with bootstrapped trees (`ml_boot.txt`). The first of these is to be specified with ASTRAL's option `-i`, and the second should be given with option `-b`. In addition, we'll use option `-o` to set the name of the output file to `species_boot.trees`:
 
-		module load Java/11.0.2
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty java -jar Astral/astral.5.7.8.jar -i ml_best.trees -b ml_boot.txt -o species_boot.trees
-		
-	ASTRAL should finish this analysis within a few seconds.
+* Have a look at the help text of Weighted ASTRAL:
 
-* Have a look at the output file `species_boot.trees`, e.g. using `less`:
+		~/ASTER/wastral
 
-		less species_boot.trees
-
-	You'll see that this files contains trees, one on each line.
+	In the last two lines of the help text, you'll see that this version of ASTRAL could be run as simply as `wastral -o output_file input_file` or `wastral -i input_file -o output_file`. Of the remaining options, the last one, `--mode` is the one we'll use to explore the effects of weighing:
 	
-* Count the number of lines in file `species_boot.trees`:
+	* `--mode 1`: hybrid weighting, using both support values and branch lengths (this is the default);
+	* `--mode 2`: weighing based on support values;
+	* `--mode 3`: weighing based on branch lengths;
+	* `--mode 4`: no weighing.
 
-		cat species_boot.trees | wc -l
+	With the last mode (`--mode 4`), wASTRAL is equivalent to the original ASTRAL version in the topology search, but the branch lengths of the resulting species tree are still calculated differently.
 
-	You'll see that it contains 102 lines. The first 100 of these lines represent species trees in Newick format estimated for each the first 100 bootstrapped trees of each gene (by default, ASTRAL uses only these; if we wanted to use more than 100 bootstrap trees per gene we would need to use the `-r` option, e.g. `-r 1000`). On line 101 is a consensus tree for these 100 trees. Finally, the last line contains the species tree estimated from the maximum-likelihood gene trees, annotated with node support based on the bootstrap trees. Thus, the last line contains the species tree that we'll use for interpretation.
+* Run wASTRAL with all four modes, saving the resulting species tree in different files each time:
 
-* However, before visualizing the species tree in FigTree, first conduct the second ASTRAL analysis based on the maximum-likelihood trees alone. Do so using the following command:
-
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty java -jar Astral/astral.5.7.8.jar -i ml_best.trees -o species_pp.tre
+		~/ASTER/wastral --mode 1 -o wastral_mode1.tre ml_best.trees
+		~/ASTER/wastral --mode 2 -o wastral_mode2.tre ml_best.trees
+		~/ASTER/wastral --mode 3 -o wastral_mode3.tre ml_best.trees
+		~/ASTER/wastral --mode 4 -o wastral_mode4.tre ml_best.trees
 		
-	The output file named `species_pp.tre` now contains just a single species tree, annotated with posterior probabilities as node support.
+	Each of the four analyses should finish instantaneously. The screen output of each analysis should include a score on the last line; however, these scores are not relevant for us as they aren't comparable between the different modes. The second-last line reports the resulting species-tree topology, but not with branch lengths or support values. The estimated species tree with branch lengths and support values can be found in the output files `wastral_mode1.tre`, `wastral_mode2.tre`, `wastral_mode3.tre`, and `wastral_mode4.tre`.
 	
-* Since we are interested only in the last of the trees from file `species_boot.trees` as well as the tree from file `species_pp.tre`, we'll generate a new file named `species.trees` that contains both of these two trees using the following commands:
+* Have a look at the first output file, for example with `less`:
+
+		less wastral_mode1.tre
 		
-		tail -n 1 species_boot.trees > species.trees
-		cat species_pp.tre >> species.trees
-		
-* Download the file `species.trees` to your own computer with `scp` and open it in FigTree. When prompted that "The node/branches of the tree are labelled", just click "OK". This will mean that the  node support values are referred to as "label" in FigTree. Click on "Decreasing Node Order" in the "Tree" menu to orient the tree, set a tick next to "Node Labels", click the triangle next to "Node Labels", and then select "label" from the drop-down menu next to "Display:" to display support values as node labels. The FigTree window should then appear more or less as shown in the next screenshot. Note that depending on the randomly chosen starting points of the IQ-TREE analyses, slightly different gene trees may have been generated in your analysis and may also have led to a species tree that is not exactly identical to the one shown here.<p align="center"><img src="img/figtree1.png" alt="FigTree" width="700"></p>
+	You should see that it contains a single line in Newick format.
+	
+* Combine the four output files:
 
-* As you can see in the top left of the window next to "Current Tree:", the displayed tree is the first out of two. The one shown in the screenshot above is the tree with node-support values based on bootstrapping. To see the next tree, click on the "Next" button near the top right of the window. This should display the tree with node-support values based only on the maximum-likelihood gene trees, as shown in the next screenshot.<p align="center"><img src="img/figtree2.png" alt="FigTree" width="700"></p>Unsurprisingly, the phylogeny itself is identical between the two trees, because the species tree is in both cases inferred from the maximum-likelihood gene trees. Perhaps more surprisingly, the node-support values correlate very strongly between the two trees, indicating that ASTRAL in fact does not require bootstrapping to estimate node support.
+		cat wastral_mode?.tre > wastral.trees
 
-* Place the root of the tree between the two Neotropical cichlid fishes (*Amphilophus citrinellus*, "ampcit", and *Andinoacara coeruleopunctatus*, "andcoe") and the African cichlids (all other species) by selecting the branch connecting the two groups and clicking on "Root on Branch..." in FigTree's "Tree" menu (or the "Reroot icon). The tree should then look as shown below.<p align="center"><img src="img/figtree3.png" alt="FigTree" width="700"></p>
+* Download file `wastral.trees` to your local computer with `scp` so that you can open it for visualization in FigTree.
 
-	**Question 2:** Do the taxonomic groups of cichlids, as listed in the table at the beginning of this tutorial, appear monophyletic in the species tree estimated by ASTRAL? [(see answer)](#q2)
+* Trying to open the file in FigTree, you will likely see an error message about an input string "nan". Open the file in a text editor instead. You'll see that in some (probably the last three trees), a branch length is encoded with "nan" instead of a number. This is the abbreviation for "not a number", resulting for example from division by zero. I assume that in our case, it is due to IQ-TREE always placing outgroups in a polytomy with a zero-length branch. To ignore these branch lenghts, remove all instances of ":nan" (including the colon).
+
+* Try to open the file once again in FigTree. This should now work. When prompted that "The node/branches of the tree are labelled", just click "OK". This will mean that the  node support values are referred to as "label" in FigTree. Click on "Decreasing Node Order" in the "Tree" menu to orient the tree, set a tick next to "Node Labels", click the triangle next to "Node Labels", and then select "label" from the drop-down menu next to "Display:" to display support values as node labels. The FigTree window should then appear more or less as shown in the next screenshot. Note that depending on the randomly chosen starting points of the IQ-TREE analyses, slightly different gene trees may have been generated in your analysis and may also have led to a species tree that is not exactly identical to the one shown here.<p align="center"><img src="img/figtree1.png" alt="FigTree" width="700"></p>
+
+* As you can see in the top left of the window next to "Current Tree:", the displayed tree is the first out of four. The one shown in the screenshot above is the tree produced with `--mode 1`, meaning that the weighing of quartets for this tree used both the node-support values and the branch lengths of gene trees. To see the next trees, click on the "Next" button near the top right of the window. **Question 2:** Does the topology differ between the four trees? [(see answer)](#q2) **Question 3:** Do the taxonomic groups of cichlids, as listed in the table at the beginning of this tutorial, appear monophyletic in the species tree estimated by ASTRAL? [(see answer)](#q3)
+
+
+* Remove the tick next to "Node Labels", and instead set one next to "Branch Labels". Select "Branch lengths (raw)" from the drop-down menu next to "Display:". The FigTree window should then appear similar to that in the next screenshot.<p align="center"><img src="img/figtree2.png" alt="FigTree" width="700"></p>  **Question 4:** Why do many branches have a length of exactly 1? [(see answer)](#q4)
+
+* As a last step, correct the root placement (which was not inferred by wASTRAL and is therefore arbitrary). To place the root of the tree between the two Neotropical cichlid fishes (*Amphilophus citrinellus*, "ampcit", and *Andinoacara coeruleopunctatus*, "andcoe") and the African cichlids (all other species), select the branch connecting the two groups and clicking on "Root on Branch..." in FigTree's "Tree" menu (or the "Reroot icon). The tree should then look as shown below.<p align="center"><img src="img/figtree3.png" alt="FigTree" width="700"></p>
 
 
 <a name="concordance"></a>
@@ -226,15 +231,15 @@ ASTRAL infers the species tree by searching for the topology that agrees with th
 
 Recent versions of IQ-TREE (from v.1.7) ([Minh et al. 2020](https://doi.org/10.1093/molbev/msaa106)) have a useful feature that allows the quick calculation of concordance factors, indicating how well each gene, or each site of the alignments, agrees with a certain topology. A very helpful description of these features can be found on [Robert Lanfear's blog](http://robertlanfear.com/blog/files/concordance_factors.html). In brief, gene-concordance factors (gCF) quantify the proportion of trees of a certain set of gene trees that contain a particular node of a user-provided reference tree. Similarly, site-concordance factors (sCF) indicate the proportion of sites in an alignment that support each node of the reference tree (specifically, at each site, the support for a node is compared with the support for two alternative topologies, and the site is said to support the node if it agrees better with the current topology than with the two alternatives).
 
-* Let's first check how many of the maximum-likelihood gene trees support each individual node in the species tree produced by ASTRAL. This can be done with the following command, in which we specify the reference tree with `-t`, provide a prefix for output files with `--prefix`, and activate the analysis of gene-concordance factors with the `--gcf` option, followed by the name of the file containing gene trees. Execute this command on Saga:
+* Let's first check how many of the maximum-likelihood gene trees support each individual node in the first species tree produced by wASTRAL (the one produced with `--mode 1`). This can be done with the following command, in which we specify the reference tree with `-t`, provide a prefix for output files with `--prefix`, and activate the analysis of gene-concordance factors with the `--gcf` option, followed by the name of the file containing gene trees. Execute this command on lynx:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty iqtree2 -t species_pp.tre --gcf ml_best.trees --prefix gene_concordance
+		iqtree3 -t wastral_mode1.tre --gcf ml_best.trees --prefix gene_concordance
 
 	The IQ-TREE output should report that a tree with concordance factors was written to file `gene_concordance.cf.tree`.
 	
 * Download file `gene_concordance.cf.tree` with `scp`, open it in FigTree, orient and root the tree, and select "label" to display as node labels. The tree should then appear as shown in the next screenshot.<p align="center"><img src="img/figtree4.png" alt="FigTree" width="700"></p>
 
-	You'll see that two types of support values are shown for each node, separated by a forward slash. The first of these values are familiar, these are the posterior probabilities that were calculated by ASTRAL when we ran it with the maximum-likelihood gene trees alone instead of using the bootstrap trees. Thus, these values do not result from the concordance analysis with IQ-TREE, but they are shown because IQ-TREE found them in the reference-tree file `species_pp.tre`. The values after the forward slashes, however, are the gene-concordance factors calculated by IQ-TREE from the set of gene trees in file `ml_best.trees`. As you can see the gCF values appear to correlate with ASTRAL's posterior probabilities but are generally lower. For example, it appears that only about 40% of the gene trees support the sister-group relationship between *Neolamprologus brichardi* ("neobri") and *Neolamprologus olivaceous* ("neooli") even though ASTRAL estimated the posterior probability of this relationship close to 1. This is not necessarily a contradiction, though, because incomplete lineage sorting, which is accounted for by ASTRAL, is expected to lead to disagreement between the species tree and gene trees particularly for rapidly diverging species.
+	You'll see that two types of support values are shown for each node, separated by a forward slash. The first of these values are familiar, these are the support values estimated by wASTRAL. Thus, these values do not result from the concordance analysis with IQ-TREE, but they are shown because IQ-TREE found them in the input species tree file `wastral_mode1.tre`. The values after the forward slashes, however, are the gene-concordance factors calculated by IQ-TREE from the set of gene trees in file `ml_best.trees`. As you can see the gCF values appear to correlate with ASTRAL's posterior probabilities but are generally lower. For example, it appears that only about 38% of the gene trees support the sister-group relationship between *Neolamprologus brichardi* ("neobri") and *Neolamprologus olivaceous* ("neooli") even though ASTRAL supported this grouping with nearly 90%. This is not necessarily a contradiction, though, because incomplete lineage sorting, which is accounted for by ASTRAL, is expected to lead to disagreement between the species tree and gene trees particularly for rapidly diverging species.
 	
 * To also calculate site-concordance factors, we'll first need to generate a concatenated version of all gene alignments. We can do that with the Ruby script `concatenate.rb`, which you probably already used in another tutorial. If not, download it from GitHub:
 
@@ -251,7 +256,7 @@ Recent versions of IQ-TREE (from v.1.7) ([Minh et al. 2020](https://doi.org/10.1
 
 		less 72_genes.nex
 		
-	**Question 3:** How many sites are now included in the concatenated alignment? [(see answer)](#q3)
+	**Question 5:** How many sites are now included in the concatenated alignment? [(see answer)](#q5)
 	
 * By specifying the concatenated alignment with the `-s` option and by activating the calculation of site-concordance factors with the `--scf` option, followed by a maximum number of species quartets to be considered in the analysis (100 is by far sufficient), we can now calculate gene and site-concordance factors in the same IQ-TREE analysis with the following command:
 
@@ -261,7 +266,7 @@ Recent versions of IQ-TREE (from v.1.7) ([Minh et al. 2020](https://doi.org/10.1
 
 	You'll see that three different support values are now shown for each node, these are the posterior probabilities from ASTRAL, the gene-concordance factors, and the site-concordance factors.  
 	
-	**Question 4:** Which proportion of sites supports the monophyly of Lamprologini? [(see answer)](#q4)
+	**Question 6:** Which proportion of sites supports the monophyly of Lamprologini? [(see answer)](#q6)
 
 Finally, we could try a very recent update of IQ-TREE's site-concordance factors, that was implemented in IQ-TREE version 2.2.2. According to a preprint by the IQ-TREE authors ([Mo et al. 2022](https://www.biorxiv.org/content/10.1101/2022.09.26.509549v1)), this implementation makes site-concordance factors more robust to homoplasies. This is achieved through maximum-likelihood estimation of the ancestral states at internal nodes, so that site-concordance factors of more ancestral nodes can then be calculated based on these reconstructed states instead of those found at the tips at the phylogeny.
 
@@ -283,7 +288,7 @@ Finally, we could try a very recent update of IQ-TREE's site-concordance factors
 
 * Open file `new_site_concordance.cf.tree ` in FigTree. Again orient and root it, and select "label" to display as node labels. The tree will then probably look as shown in the next screenshot.<p align="center"><img src="img/figtree6.png" alt="FigTree" width="700"></p>
 
-	**Question 5:** Why have the branch lengths changed? [(see answer)](#q5)
+	**Question 7:** Why have the branch lengths changed? [(see answer)](#q7)
 	
 	The first parts of the node labels are again the posterior probabilities from ASTRAL, but the values after the forward slashes are now the new site-concordance factors. By comparing these to the standard site-concordance factors that we calculated before, you should see that the new site-concordance factors are in almost all cases larger.
 
@@ -301,16 +306,24 @@ Finally, we could try a very recent update of IQ-TREE's site-concordance factors
 
 <a name="q2"></a>
 
-* **Question 2:** In fact, all tribes appear monophyletic in the ASTRAL species tree, and so do Neotropical cichlids (comprising *Amphilophus citrinellus*, "ampcit", and *Andinoacara coeruleopunctatus*, "andcoe") as well as African cichlids (all remaining species). However, the ASTRAL species tree does not clearly answer whether or not *Ophthalmotilapia ventralis* ("ophven") is the sister group to Haplochromini plus Lamprologini, or whether it is closer to one of the two tribes. Adding further sequence data for *Ophthalmotilapia ventralis*, for which only twelve gene sequences were used for the analysis, would probably help to infer its position more reliably. The species tree further supports a nested position of Lake Malawi and Lake Victoria species (*Metriaclima zebra*, "metzeb", and *Pundamilia nyererei*, "punnye", respectively) within the Lake Tanganyika radiation, a pattern that has long been known ([Salzburger et al. 2005](https://doi.org/10.1186/1471-2148-5-17)).
+* **Question 2:** In my analyses, the same topology was estimated regardless of weighing scheme. However, two nodes are very poorly supported, and might be resolved differently in (some of) your analyses: The node connecting *Ophthalmotilapia ventralis* ("ophven"), and one node within the four *Neolamprologus* species ("neomar", "neogra", "neobri", and "neooli").
 
 <a name="q3"></a>
 
-* **Question 3:** The number following the "nchar" keyword on the fourth line indicates that 73,623 sites are included in the concatenated alignment.
+* **Question 3:** In fact, all tribes appear monophyletic in the ASTRAL species tree, and so do Neotropical cichlids (comprising *Amphilophus citrinellus*, "ampcit", and *Andinoacara coeruleopunctatus*, "andcoe") as well as African cichlids (all remaining species). However, the ASTRAL species tree does not clearly answer whether or not *Ophthalmotilapia ventralis* ("ophven") is the sister group to Haplochromini plus Lamprologini, or whether it is closer to one of the two tribes. Adding further sequence data for *Ophthalmotilapia ventralis*, for which only twelve gene sequences were used for the analysis, would probably help to infer its position more reliably. The species tree further supports a nested position of Lake Malawi and Lake Victoria species (*Metriaclima zebra*, "metzeb", and *Pundamilia nyererei*, "punnye", respectively) within the Lake Tanganyika radiation, a pattern that has long been known ([Salzburger et al. 2005](https://doi.org/10.1186/1471-2148-5-17)).
 
 <a name="q4"></a>
 
-* **Question 4:** As shown in the table at the beginning of this tutorial, the tribe called Lamprologini is in our dataset represented by four species: *Neolamprologus brichardi* ("neobri"), *Neolamprologus marunguensis* ("neomar"), *Neolamprologus gracilis* ("neogra"), and *Neolamprologus olivaceous* ("neooli"). The most ancestral node among the four species has the label "1/91.7/94.3", meaning that 91.7% of the gene trees (66 of the 72 trees) and 94.3% of the alignment sites support this node.
+* **Question 4:** These branch lengths have not been estimated, and are not encoded in the Newick string. In that case, FigTree displays these branches with a default length of 1. Estimating terminal branch lengths of a species tree based on gene trees is inherently tricky, and therefore not implemented in ASTRAL. However, progress has been made recently by the same authors ([Tabatabaee et al. 2025](https://doi.org/10.1093/gbe/evaf200)), implying that a method to estimate all branch lengths may soon be added to ASTRAL.
 
 <a name="q5"></a>
 
-* **Question 5:** To perform the maximum-likelihood estimation of ancestral states, IQ-TREE re-estimated all branch lengths. The tree topology, however, was constrained to be that of the input tree in file `species_pp.tre`.
+* **Question 5:** The number following the "nchar" keyword on the fourth line indicates that 73,623 sites are included in the concatenated alignment.
+
+<a name="q6"></a>
+
+* **Question 6:** As shown in the table at the beginning of this tutorial, the tribe called Lamprologini is in our dataset represented by four species: *Neolamprologus brichardi* ("neobri"), *Neolamprologus marunguensis* ("neomar"), *Neolamprologus gracilis* ("neogra"), and *Neolamprologus olivaceous* ("neooli"). The most ancestral node among the four species has the label "1/91.7/94.3", meaning that 91.7% of the gene trees (66 of the 72 trees) and 94.3% of the alignment sites support this node.
+
+<a name="q7"></a>
+
+* **Question 7:** To perform the maximum-likelihood estimation of ancestral states, IQ-TREE re-estimated all branch lengths. The tree topology, however, was constrained to be that of the input tree in file `species_pp.tre`.
