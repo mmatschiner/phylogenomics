@@ -260,11 +260,11 @@ In the above phylogenetic inference, we assumed that the GTR substitution model 
 
 		packagemanager -add bModelTest
 
-* To run BEAST2 with the file `bmodeltest.xml`, we'll need a new Slurm script. On Saga, copy the existing Slurm script `run_beast2.slurm` to a new file named `run_bmodeltest.slurm`:
+* To run BEAST2 with the file `bmodeltest.xml`, we'll need a new Slurm script. On lynx, copy the existing Slurm script `run_beast2.slurm` to a new file named `run_bmodeltest.slurm`:
 
 		cp run_beast2.slurm run_bmodeltest.slurm
 		
-* Open file `run_bmodeltest.slurm` with a text editor available on Saga, such as Emacs:
+* Open file `run_bmodeltest.slurm` with a text editor available on lynx, such as Emacs:
 
 		emacs run_bmodeltest.slurm
 		
@@ -323,7 +323,7 @@ There are various ways to assess whether or not an MCMC analysis is "stationary"
 
 Thus, both the calculation of ESS values as well as the visual inspection of trace plots should indicate stationarity of the MCMC chain; if this is not the case, the run should in principle be resumed (not for this tutorial). For BEAST2 analyses, resuming a chain is possible with the `-resume` option of BEAST2.
 
-* Download file `beast2.log` from the `r01` directory on Saga to your local computer, using `scp`.
+* Download file `beast2.log` from the `r01` directory on lynx to your local computer, using `scp`.
 
 * Open this file in the program Tracer. The Tracer window should then look more or less as shown in the next screenshot<p align="center"><img src="img/tracer1.png" alt="Tracer" width="700"></p>In the top left panel of the Tracer window, you'll see a list of the loaded log files, which currently is just the single file `beast2.log`. This panel also specifies the number of states found in this file, and the burn-in to be cut from the beginning of the MCMC chain. Cutting away a burn-in removes the initial period of the MCMC chain during which it may not have sampled from the true posterior distribution yet.
 
@@ -344,16 +344,15 @@ Thus, both the calculation of ESS values as well as the visual inspection of tra
 	**Question 3:** Besides the prior and posterior probabilities, which parameter has the lowest ESS value? [(see answer)](#q3)
 	**Question 4:** Could this parameter be responsible for the low ESS value of the prior probability? [(see answer)](#q4)
 
-* To find out why the estimation of the A &rarr; T substitution rate (or any other substitution rate that may have a particularly low ESS value in your analysis) seems to be difficult for the respective partition, we can use a Ruby script to calculate the number of sites in the alignment at which each pair of nucleotides co-occur. Download this script to your working directory on Saga:
+* To find out why the estimation of the A &rarr; T substitution rate (or any other substitution rate that may have a particularly low ESS value in your analysis) seems to be difficult for the respective partition, we can use a Ruby script to calculate the number of sites in the alignment at which each pair of nucleotides co-occur. Download this script to your tutorial directory on lynx:
 
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/count_substitutions.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/bayesian_phylogeny_inference/scripts/count_substitutions.rb
 
-* Run this script for the alignment file for the third partition, `hughes_etal_10_orthologs_20_species/loci_0003.nex`:
+* Run this script for the alignment file for the partition in question, e.g., `hughes_etal_10_orthologs_20_species/loci_0003.nex`:
 
-		module load Ruby/2.7.2-GCCcore-9.3.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby count_substitutions.rb hughes_etal_10_orthologs_20_species/locus_0003.nex
+		ruby count_substitutions.rb hughes_etal_10_orthologs_20_species/locus_0003.nex
 		
-	**Question 5:** Which types of substitutions appear to be particularly rare in the third partition - do these correspond to the substitution rate parameters with particularly low ESS values? [(see answer)](#q5)
+	**Question 5:** Which types of substitutions appear to be particularly rare in this partition - do these correspond to the substitution rate parameters with particularly low ESS values? [(see answer)](#q5)
 	
 
 <a name="convergence"></a>
@@ -361,7 +360,7 @@ Thus, both the calculation of ESS values as well as the visual inspection of tra
 
 Bayesian analysis with MCMC are considered "converged" when multiple replicates of the same analysis all produce an essentially identical result. This means that the only differences between these analysis – the randomly selected starting points of the MCMC in parameter space, and the randomly selected sequence in which parameters are changed by operators during the MCMC – did not influence the outcome.
 
-* To allow a comparison of the results of the two replicate analyses of the input file `beast.xml`, also download the file `beast2.log` from the `r02` directory on Saga to your local computer. However, make sure not to overwrite the previously downloaded file with the same name.
+* To allow a comparison of the results of the two replicate analyses of the input file `beast.xml`, also download the file `beast2.log` from the `r02` directory on lynx to your local computer. However, make sure not to overwrite the previously downloaded file with the same name.
 
 * Open both files in Tracer. The top left panel of the Tracer window should then show that two log files are loaded.<p align="center"><img src="img/tracer7.png" alt="Tracer" width="700"></p>
 
@@ -375,13 +374,13 @@ The similarity in most estimates between both replicates is a good indication of
 
 * Click on "Combined" in the top left panel of the Tracer window and then browse through the list of parameter estimates in the bottom left panel of the window. You should see that while some ESS values are still below 200 and therefore marked in yellow or red; these are not as frequent as for the indiviual log files. Also, the absolute lowest ESS value should now be larger than in the indivual log files (this may not always be the case, however).
 
-Even though both chains are clearly not stationary yet, their comparison indicates that these are converged, meaning that they have arrived in the same region of the parameter space even though their start positions in that space were different. There is some remaining uncertainty about whether this region represents the true posterior distribution, however, because the two chains could theoretically also have arrived in this region by chance. This may be unlikely, but if we wanted to exclude this possibility with greater confidence, we could run additional replicate analyses to check if they also arrive in the same region of the parameter space. In any case, as Bayesian analyses should be both stationary and converged to be considered complete, our analyses should ideally have run longer than they did.
+Even though both chains are clearly not stationary yet, their comparison indicates that these are converged, meaning that they have arrived in the same region of the parameter space even though their start positions in that space were different. There is some remaining uncertainty about whether this region represents the true posterior distribution, however, because the two chains could theoretically also have arrived in the same region just by chance. This may be unlikely, but if we wanted to exclude this possibility with greater confidence, we could run additional replicate analyses to check if they also arrive in the same region of the parameter space. In any case, as Bayesian analyses should be both stationary and converged to be considered complete, our analyses should ideally have run longer than they did.
 
 
 <a name="comparison"></a>
 ## Comparison of run results
 
-* If the BEAST2 analyses of file `bmodeltest.xml` have finished on Saga, also download file `bmodeltest.log` to your local computer and open it in Tracer. The Tracer window should then look similar to the one shown in the screenshot.<p align="center"><img src="img/tracer8.png" alt="Tracer" width="700"></p>
+* If the BEAST2 analyses of file `bmodeltest.xml` have finished on lynx, also download file `bmodeltest.log` to your local computer and open it in Tracer. The Tracer window should then look similar to the one shown in the screenshot.<p align="center"><img src="img/tracer8.png" alt="Tracer" width="700"></p>
 
 	**Question 8:** Does this analysis appear more stationary than the one of file `beast2.xml`? [(see answer)](#q8)
 
@@ -401,7 +400,7 @@ Even though both chains are clearly not stationary yet, their comparison indicat
 
 * Using Tracer, have a look whether for one of the partitions you find a pattern in the traces of the substitution rates like the one shown in the next screenshot.<p align="center"><img src="img/tracer12.png" alt="Tracer" width="700"></p>
 
-* If you did find a pattern like the one above, also have a look at the corresponding "BMT_ModelIndicator". In my analysis, the parameter labelled "BMT_ModelIndicator.04" has a trace with a pattern that appears linked to that of the trace of the substitution rates of the fourth partition: both are changed between states (=MCMC iterations) 2.5 and 6.25 million.<p align="center"><img src="img/tracer13.png" alt="Tracer" width="700"></p> The values on the y-axis of this plot are simply an indicator of the model used. Thus, there was a period during the analysis when certain types of models were selected far more frequently than before or after.
+* If you did find a pattern like the one above, also have a look at the corresponding "BMT\_ModelIndicator". In my analysis, the parameter labelled "BMT\_ModelIndicator.04" has a trace with a pattern that appears linked to that of the trace of the substitution rates of the fourth partition: both are changed between states (=MCMC iterations) 2.5 and 6.25 million.<p align="center"><img src="img/tracer13.png" alt="Tracer" width="700"></p> The values on the y-axis of this plot are simply an indicator of the model used. Thus, there was a period during the analysis when certain types of models were selected far more frequently than before or after.
 
 From the above comparison of the log files resulting from BEAST2 analyses with and without the bModelTest model, we have learned that the bModelTest model apparently has improved the estimation of some parameters as well as that of the posterior and prior probabilities, but some other parameters remain very poorly estimated. In any case, I would recommend the use of the bModelTest model as it often avoids the use of overly complex models, which can save run time and speed up stationarity (even though this was not very apparent with the dataset used here).
 
@@ -413,7 +412,7 @@ From the above comparison of the log files resulting from BEAST2 analyses with a
 
 So far, we have only used the log files produced by the two BEAST2 analyses to assess run completeness, but we have not yet looked into the results that are usually of greater interest: the phylogenetic trees inferred by BEAST2. We will do so in this part of the tutorial.
 
-* Download the tree file resulting from the analysis with the bModelTest model, file `bmodeltest.trees`, from Saga to your local computer using `scp`.
+* Download the tree file resulting from the analysis with the bModelTest model, file `bmodeltest.trees`, from lynx to your local computer using `scp`.
 
 * Open the file `bmodeltest.trees` in the program FigTree. Once the tree file is opened (it might take a short while to load), the FigTree window should look more or less as shown in the next screenshot.<p align="center"><img src="img/figtree1.png" alt="FigTree" width="700"></p>Note that in contrast to the trees inferred in other tutorials, this tree now is ultrametric, meaning that all tips are lined up and equally distant from the root. This is because the branch lengths in this tree represent time and all samples were taken (nearly) at the same time.
 
@@ -421,22 +420,21 @@ So far, we have only used the log files produced by the two BEAST2 analyses to a
 
 * Instead of clicking on this icon for "Next" 2,000 times to see the last phylogeny, click on the triangle to the left of "Current Tree: X / 2001" in the menu at the left. This will open a field where you can directly enter the number of the tree that you'ld like to see. Type "2001" and hit enter. You should then see a phylogeny that looks much more realistic than the very first sampled phylogeny. But note that this is only the last sampled phylogeny, it may not be representative for the entire collection of phylogenies sampled during the MCMC; the "posterior tree distribution". To generate a more representative phylogeny summarizing the information from the posterior tree distribution, the program TreeAnnotator can be used, which is part of the BEAST2 package. The summary trees produced by TreeAnnotator are called "Maximum-clade credibility (MCC) trees", a concept that is described in [Heled and Bouckaert (2013)](https://doi.org/10.1186/1471-2148-13-221).
 
-* On Saga, have a look at the help text of TreeAnnotator:
+* On lynx, have a look at the help text of TreeAnnotator:
 
-		module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
 		treeannotator -help
 		
-	You'll see that the program requires the specification of an input and an output file. In addition, the option `-heights` is important to specify whether the node ages in the summary tree should be according to mean or median ages across all trees from the posterior tree distribution (it is common to use the mean for that). The second important option is the one to specify the percentage of the MCMC that should be discarded as burnin before summarizing the posterior tree distribution, `-burnin`. Unless the inspection of the corresponding trace file with Tracer indicated a longer burnin, a burnin percentage of 10 is common and OK to use.
+	You'll perhaps see that the help text is not particularly well-written and cryptic. What the help text does not convey clearly is that TreeAnnotator expects two command-line arguments, one for the input file (the posterior tree distribution) and one for the output file (the summary tree), both without specifying one of the keywords. In addition, the option `-height` is important to specify whether the node ages in the summary tree should be according to mean or median ages across all trees from the posterior tree distribution (it is common to use the mean for that). The second important option is the one to specify the percentage of the MCMC that should be discarded as burnin before summarizing the posterior tree distribution, `-burnin`. Unless the inspection of the corresponding trace file with Tracer indicated a longer burnin, a burnin percentage of 10 is common and OK to use.
 	
-* To summarize the posterior tree distribution in file `bmodeltest.trees` on Saga, set the burnin percentage to 10, specify that mean age estimates should be used for nodes in the summary tree,  name the output file `bmodeltest.tre`, and execute the TreeAnnotator command with `srun`:
+* To summarize the posterior tree distribution in file `bmodeltest.trees` on lynx, set the burnin percentage to 10, specify that mean age estimates should be used for nodes in the summary tree,  name the output file `bmodeltest.tre`, and execute the TreeAnnotator command:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty treeannotator -burnin 10 -heights mean bmodeltest.trees bmodeltest.tre
+		treeannotator -burnin 10 -height mean bmodeltest.trees bmodeltest.tre
 
-* Download file `bmodeltest.tre` from Saga to your local computer and open it in FigTree. To see the support values for each node, set a tick next to "Node Labels" in the menu on the left, and click on the triangle next to it. Then choose "posterior" from the drop-down menu to the right of "Display". The posterior node support values represent our confidence that a given node is monophyletic, under the assumption that the employed model is correct. As shown in the next screenshot, most clades are well-supported, with node support values close to 1. These represent "Bayesian posterior probabilities" (BPP) that directly quantify the probability that the group below the node is monophyletic, given the data and under the assumed model. One exception to this is the monophyly of *Chatrabus melanurus*, *Takifugu rubripes*, and *Brotula barbata*), with a low BPP of 0.49.<p align="center"><img src="img/figtree3.png" alt="FigTree" width="700"></p>
+* Download file `bmodeltest.tre` from lynx to your local computer and open it in FigTree. To see the support values for each node, set a tick next to "Node Labels" in the menu on the left, and click on the triangle next to it. Then choose "posterior" from the drop-down menu to the right of "Display". The posterior node support values represent our confidence that a given node is monophyletic, under the assumption that the employed model is correct. As shown in the next screenshot, most clades are well-supported, with node support values close to 1. These represent "Bayesian posterior probabilities" (BPP) that directly quantify the probability that the group below the node is monophyletic, given the data and under the assumed model. One exception to this is the monophyly of *Chatrabus melanurus*, *Takifugu rubripes*, and *Brotula barbata*), with a low BPP around 0.5.<p align="center"><img src="img/figtree3.png" alt="FigTree" width="700"></p>
 
 * To add a time scale to the phylogeny, set a tick next to "Scale Axis" in the menu on the left. Also click the triangle next to it, remove the tick next to "Show grid" in the newly opened menu field, but set a tick next to "Reverse axis" instead. Also remove the tick next to "Scale Bar" above. The result is shown in the next screenshot.<p align="center"><img src="img/figtree4.png" alt="FigTree" width="700"></p>
 
-* To also see the confidence intervals for the age estimates, click on the triangle next to "Node Bars" in the menu on the left. Also set a tick in the checkbox for "Node Bars". Choose the first item from the drop-down menu for "Display", the "height_95%_HPD" ("HPD" = "highest posterior density"; this is the most common measure of the confidence interval in a Bayesian analysis). You should then see blue bars on each node, these indicate the age range within which the node lies with 95% certainty. The phylogeny should then look as shown below.<p align="center"><img src="img/figtree5.png" alt="FigTree" width="700"></p>
+* To also see the confidence intervals for the age estimates, click on the triangle next to "Node Bars" in the menu on the left. Also set a tick in the checkbox for "Node Bars". Choose the first item from the drop-down menu for "Display", the "height\_95%\_HPD" ("HPD" = "highest posterior density"; this is the most common measure of the confidence interval in a Bayesian analysis). You should then see blue bars on each node, these indicate the age range within which the node lies with 95% certainty. The phylogeny should then look as shown below.<p align="center"><img src="img/figtree5.png" alt="FigTree" width="700"></p>
 
 	**Question 11:** When did the two main groups of Cichlids, Cichlinae (Neotropical cichlids) and Pseudocrenilabrinae (African cichlids), split from each other (you can look up the taxa assigned to both groups in the table at the start of this tutorial)?[(see answer)](#q11)
 
@@ -505,7 +503,7 @@ According to the BEAST2 analyses of this tutorial, African and Neotrocial cichli
 
 <a name="q11"></a>
 
-* **Question 11:** Cichlinae are represented in the dataset only by the Midas cichlid (*Amphilophus citrinellus*) while Pseudocrenilabrinae are represented by Nile tilapia (*Oreochromis niloticus*) and Burton's mouthbrooder (*Astatotilapia burtoni*; named *Haplochromis burtoni* in the alignments from [Hughes et al. (2018)](https://doi.org/10.1073/pnas.1719358115)). In my analysis with the bModelTest model, these two groups diverged around 29.8 million years ago, with a 95% HPD interval from 35.0 to 24.8 million years ago. To see this ages, you can set FigTree to display first "Node Ages" and then "height_95%_HPD" as node labels. Another and perhaps more convenient way to see the age estimate for this divergence would have been to use Tracer instead of FigTree: The parameter named "mrca.age(Cichlidae)", that is listed in the parameter list because we had defined a monophyly constraint for Cichlidae, corresponds to the divergence between Cichlinae and Pseudocrenilabrinae, and the mean estimate, the 95% HPD interval, and a histogram of the posterior distribution of that parameter are all reported by Tracer, as shown in the screenshot below.<p align="center"><img src="img/tracer14.png" alt="Tracer" width="700"></p>
+* **Question 11:** Cichlinae are represented in the dataset only by the Midas cichlid (*Amphilophus citrinellus*) while Pseudocrenilabrinae are represented by Nile tilapia (*Oreochromis niloticus*) and Burton's mouthbrooder (*Astatotilapia burtoni*; named *Haplochromis burtoni* in the alignments from [Hughes et al. (2018)](https://doi.org/10.1073/pnas.1719358115)). In my analysis with the bModelTest model, these two groups diverged around 29.8 million years ago, with a 95% HPD interval from 35.0 to 24.8 million years ago. To see this ages, you can set FigTree to display first "Node Ages" and then "height\_95%\_HPD" as node labels. Another and perhaps more convenient way to see the age estimate for this divergence would have been to use Tracer instead of FigTree: The parameter named "mrca.age(Cichlidae)", that is listed in the parameter list because we had defined a monophyly constraint for Cichlidae, corresponds to the divergence between Cichlinae and Pseudocrenilabrinae, and the mean estimate, the 95% HPD interval, and a histogram of the posterior distribution of that parameter are all reported by Tracer, as shown in the screenshot below.<p align="center"><img src="img/tracer14.png" alt="Tracer" width="700"></p>
 
 
 <a name="q12"></a>

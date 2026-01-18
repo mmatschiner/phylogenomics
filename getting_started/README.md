@@ -37,7 +37,7 @@ To execute commands like the above, the "Enter" key always needs to be hit after
 
 * Downloading from lynx works very similar. However, it's best to first navigate to the directory on your own computer into which you would like to download the files. Then, use the following command for the download:
 
-		scp -R YOURUSERNAME@10.153.166.2:PATH_TO_YOUR_FOLDER_ON_SAGA/YOURFILE .
+		scp -R YOURUSERNAME@10.153.166.2:PATH_TO_YOUR_FOLDER_ON_LYNX/YOURFILE .
 		
 	Note that instead of a file name in the above two commands (`YOURFILE`), you could also specify the name of a directory.
 
