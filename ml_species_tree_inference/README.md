@@ -51,6 +51,7 @@ The dataset used in this tutorial is a set of alignments for 72 genes, extracted
 	
 * **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Being a GUI program, FigTree can not be run on lynx, but needs to be installed and used on your local computer (see [Requirements](../requirements/README.md)). Input files for FigTree will thus need to be downloaded from lynx. 
 
+<!--
 * **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. ASTRAL is not installed on lynx, but it can easily be made available simply by placing it in the analysis directory. This can be done with the following commands:
 
 		wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
@@ -60,7 +61,7 @@ The dataset used in this tutorial is a set of alignments for 72 genes, extracted
 	The program can then be tested with this command, which should output the help text of ASTRAL:
 	
 		java -jar Astral/astral.5.7.8.jar
-
+-->
 
 * **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in ASTER* (Accurate Species Tree EstimatoR) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
 		
@@ -86,7 +87,7 @@ As input for the species-tree analyses with ASTRAL, sets of gene trees are requi
 
 * Download the compressed directory `72_genes.tgz`, containing the 72 alignments with sequences for the 11 cichlid species, to your tutorial directory on lynx:
 	
-		wget https://github.com/ForBioPhylogenomics/tutorials/raw/main/week2_data/72_genes.tgz
+		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/ml_species_tree_inference/data/72_genes.tgz
 
 * Uncompress the directory:
 
@@ -100,7 +101,7 @@ As input for the species-tree analyses with ASTRAL, sets of gene trees are requi
 
 Since IQ-TREE cannot infer the phylogeny from an alignment in which one or more sequences consist only of missing data, we will need to remove the "ophven" sequence from all those alignments in which it contains no information. This means that *Ophthalmotilapia ventralis* will only be included in a subset of the gene trees generated with IQ-TREE; however, this will fortunately not be a problem for the species-tree inference because ASTRAL does not require that all gene trees contain the exact same set of taxa. To remove sequences that contain only missing information from all alignments, and at the same time translate all alignments into Nexus format, we can use the Python script `convert.py`.
 
-* Because the script `convert.py` was already used in the [Bayesian Phylogenetic  Inference](../bayesian_phylogeny_inference/README.md) tutorial, you probably have this script already. If not, download it from GitHub:
+* Download the script `convert.py` from GitHub:
 
 		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/convert.py
 
