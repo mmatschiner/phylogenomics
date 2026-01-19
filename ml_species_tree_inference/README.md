@@ -243,12 +243,11 @@ Recent versions of IQ-TREE (from v.1.7) ([Minh et al. 2020](https://doi.org/10.1
 	
 * To also calculate site-concordance factors, we'll first need to generate a concatenated version of all gene alignments. We can do that with the Ruby script `concatenate.rb`, which you probably already used in another tutorial. If not, download it from GitHub:
 
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/concatenate.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/ml_species_tree_inference/scripts/concatenate.rb
 
-* Concatenate all 72 alignments using the script by executing it with `srun`:
+* Concatenate all 72 alignments using the script `concatenate.rb`:
 
-		module load Ruby/2.7.2-GCCcore-9.3.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby concatenate.rb -i 72_genes/*.nex -o 72_genes.nex -f nexus
+		ruby concatenate.rb -i 72_genes/*.nex -o 72_genes.nex -f nexus
 
 	(`-i` specifies the set of gene alignments, `-o` specifies the name of the concatenated output file, and `-f` specifies the format of the output file).
 	
@@ -260,38 +259,29 @@ Recent versions of IQ-TREE (from v.1.7) ([Minh et al. 2020](https://doi.org/10.1
 	
 * By specifying the concatenated alignment with the `-s` option and by activating the calculation of site-concordance factors with the `--scf` option, followed by a maximum number of species quartets to be considered in the analysis (100 is by far sufficient), we can now calculate gene and site-concordance factors in the same IQ-TREE analysis with the following command:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty iqtree2 -t species_pp.tre --gcf ml_best.trees -s 72_genes.nex --scf 100 --prefix gene_and_site_concordance
+		iqtree3 -t wastral_mode1.tre --gcf ml_best.trees -s 72_genes.nex --scf 100 --prefix gene_and_site_concordance
 
 * Download file `gene_and_site_concordance.cf.tree` and open it in FigTree. Again orient and root the tree and select "label" to display as node labels. The tree should then appear as shown in the next screenshot.<p align="center"><img src="img/figtree5.png" alt="FigTree" width="700"></p>
 
-	You'll see that three different support values are now shown for each node, these are the posterior probabilities from ASTRAL, the gene-concordance factors, and the site-concordance factors.  
+	You'll see that three different support values are now shown for each node, these are the support values estimated by wASTRAL, the gene-concordance factors, and the site-concordance factors.  
 	
 	**Question 6:** Which proportion of sites supports the monophyly of Lamprologini? [(see answer)](#q6)
 
-Finally, we could try a very recent update of IQ-TREE's site-concordance factors, that was implemented in IQ-TREE version 2.2.2. According to a preprint by the IQ-TREE authors ([Mo et al. 2022](https://www.biorxiv.org/content/10.1101/2022.09.26.509549v1)), this implementation makes site-concordance factors more robust to homoplasies. This is achieved through maximum-likelihood estimation of the ancestral states at internal nodes, so that site-concordance factors of more ancestral nodes can then be calculated based on these reconstructed states instead of those found at the tips at the phylogeny.
+<!--
+* Finally, you could try an updated version of IQ-TREE's site-concordance factors, which the authors claim to be more robust to homoplasies ([Mo et al. 2023](https://doi.org/10.1093/bioinformatics/btac741)). This robustness is achieved through maximum-likelihood estimation of the ancestral states at internal nodes, so that site-concordance factors of more ancestral nodes can then be calculated based on these reconstructed states instead of those found at the tips at the phylogeny. The newer version of site-concordance factors is calculated with `--scfl` instead of `--scf`:
 
-* As this latest update of IQ-TREE is only available as a pre-release version and is not yet installed as a module on Saga, we will have to download it ourselves. Fortunately, the installation is very easy. Use the following command to download this version into your working directory on Saga:
-
-		wget https://github.com/iqtree/iqtree2/releases/download/v2.2.2/iqtree-2.2.2-Linux.tar.gz
-		
-* Uncompress the downloaded file with `tar`:
-
-		tar -xzf iqtree-2.2.2-Linux.tar.gz
-
-* Execute this command to calculate the new site concordance factors, in which `iqtree-2.2.2-Linux/bin/iqtree2` is called instead of `iqtree2`, the new version of site-concordance factors is calculated with `--scfl` instead of `--scf`, and the prefix `gene_and_new_site_concordance` is used:
-
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty iqtree-2.2.2-Linux/bin/iqtree2 -t species_pp.tre -s 72_genes.nex --scfl 100 --prefix new_site_concordance
+		iqtree3 -t wastral_mode1.tre -s 72_genes.nex --scfl 100 --prefix new_site_concordance
 
 	Note that gene-concordance factors are now not calculated simultaneously, because this is not possible in combination with the new version of the site-concordance factors (and because we already know them anyway).
 	
-* Download the tre file `new_site_concordance.cf.tree` from Saga to your own computer.
+* Download the tre file `new_site_concordance.cf.tree` from lynx to your own computer.
 
-* Open file `new_site_concordance.cf.tree ` in FigTree. Again orient and root it, and select "label" to display as node labels. The tree will then probably look as shown in the next screenshot.<p align="center"><img src="img/figtree6.png" alt="FigTree" width="700"></p>
+* Open file `new_site_concordance.cf.tree` in FigTree. Again orient and root it, and select "label" to display as node labels. The tree will then probably look as shown in the next screenshot.<p align="center"><img src="img/figtree6.png" alt="FigTree" width="700"></p> XXX figure missing XXX
 
 	**Question 7:** Why have the branch lengths changed? [(see answer)](#q7)
 	
-	The first parts of the node labels are again the posterior probabilities from ASTRAL, but the values after the forward slashes are now the new site-concordance factors. By comparing these to the standard site-concordance factors that we calculated before, you should see that the new site-concordance factors are in almost all cases larger.
-
+	The first parts of the node labels are again the support values estimated with wASTRAL, but the values after the forward slashes are now the new site-concordance factors. By comparing these to the standard site-concordance factors that we calculated before, you should see that the new site-concordance factors are in almost all cases larger.
+-->
 
 
 <br><hr>
@@ -322,8 +312,10 @@ Finally, we could try a very recent update of IQ-TREE's site-concordance factors
 
 <a name="q6"></a>
 
-* **Question 6:** As shown in the table at the beginning of this tutorial, the tribe called Lamprologini is in our dataset represented by four species: *Neolamprologus brichardi* ("neobri"), *Neolamprologus marunguensis* ("neomar"), *Neolamprologus gracilis* ("neogra"), and *Neolamprologus olivaceous* ("neooli"). The most ancestral node among the four species has the label "1/91.7/94.3", meaning that 91.7% of the gene trees (66 of the 72 trees) and 94.3% of the alignment sites support this node.
+* **Question 6:** As shown in the table at the beginning of this tutorial, the tribe called Lamprologini is in our dataset represented by four species: *Neolamprologus brichardi* ("neobri"), *Neolamprologus marunguensis* ("neomar"), *Neolamprologus gracilis* ("neogra"), and *Neolamprologus olivaceous* ("neooli"). The most ancestral node among the four species has the label "1/87.5/92.5", meaning that 91.7% of the gene trees (66 of the 72 trees) and 94.3% of the alignment sites support this node.
 
+<!--
 <a name="q7"></a>
 
-* **Question 7:** To perform the maximum-likelihood estimation of ancestral states, IQ-TREE re-estimated all branch lengths. The tree topology, however, was constrained to be that of the input tree in file `species_pp.tre`.
+* **Question 7:** To perform the maximum-likelihood estimation of ancestral states, IQ-TREE re-estimated all branch lengths. The tree topology, however, was constrained to be that of the input tree in file `wastral_mode1.tre`.
+-->
