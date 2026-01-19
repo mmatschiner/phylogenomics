@@ -19,10 +19,11 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
 
-<!--
 ## Day 2
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees
+
+<!--
 
 * [Whole-Genome Alignment](whole_genome_alignment/README.md)<br>A tutorial on repeat masking and whole-genome alignment of assembled genomes
 

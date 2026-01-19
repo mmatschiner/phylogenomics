@@ -16,9 +16,16 @@ Most analyses of the tutorials of the Phylogenomics course will be conducted usi
 
 * **RStudio:** [RStudio](https://www.rstudio.com/products/rstudio/) is an integrated development environment (IDE) for [R](https://www.r-project.org/). It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management. RStudio is available in open source and commercial editions and runs on the desktop (Windows, Mac, and Linux) or in a browser connected to RStudio Server or RStudio Server Pro (Debian/Ubuntu, Red Hat/CentOS, and SUSE Linux). Download the program [RStudio Desktop](https://www.rstudio.com/products/rstudio/download/). You have to choose the free version, which is not for the server. You will also have to install [R 3.6.0+](https://cran.rstudio.com/) on your computer before you install R Studio. Choose the OS appropriate for your computer.
 
+
 ## Add-on packages
 
-A number of add-on packages for BEAST2 will need to be installed both on the lynx server and on your local computer. The installations on lynx need to be done by every user, but consist of a single command that will be described in the respective tutorial. The installations on the local computer are done through BEAUti, as described below.
-
-* **bModelTest:** The [bModelTest](https://github.com/BEAST2-Dev/bModelTest) ([Bouckaert and Drummond 2017](https://bmcevolbiol.biomedcentral.com/articles/10.1186/s12862-017-0890-6)) add-on package enables automated substitution model selection as part of BEAST2 analyses. This package needs to be installed on your local computer, because it will be required to generate input for BEAST2 (which will be done on the local computer). The installation is done through BEAST2's PackageManager tool that is accessible through BEAUti. To find it, open BEAUti, and click on "Manage Packages" in BEAUti's "File" menu, as shown in the next screenshot.<p align="center"><img src="img/beauti1.png" alt="BEAUti" width="700"></p>
+* **bModelTest:** The [bModelTest](https://github.com/BEAST2-Dev/bModelTest) ([Bouckaert and Drummond 2017](https://bmcevolbiol.biomedcentral.com/articles/10.1186/s12862-017-0890-6)) add-on package for BEAST2 enables automated substitution model selection as part of BEAST2 analyses. This package needs to be installed on your local computer, because it will be required to generate input for BEAST2 (which will be done on the local computer). The installation is done through BEAST2's PackageManager tool that is accessible through BEAUti. To find it, open BEAUti, and click on "Manage Packages" in BEAUti's "File" menu, as shown in the next screenshot.<p align="center"><img src="img/beauti1.png" alt="BEAUti" width="700"></p>
 	This will open the BEAST2 Package Manager as shown in the next screenshot. Select "bModelTest" and click on "Install/Upgrade".<p align="center"><img src="img/beauti2.png" alt="BEAUti" width="700"></p>You will see a notice that any changes will only take effect after you restart BEAUti; thus, do so.
+	In addition to the installation on your local computer, the bModelTest add-on package will also need to be installed for every user on the lynx server; however, this installation on lynx consist of a single command that will be described in the respective tutorial.
+
+* **StarBeast3:** The [StarBeast3](https://github.com/rbouckaert/starbeast3) ([Douglas et al. 2022](https://doi.org/10.1093/sysbio/syac010)) add-on package for BEAST2 allows species-tree inference under the multi-species coalescent model. It needs to be installed on your local computer in the same way as bModelTest, through BEAST2's PackageManager tool in BEAUti.
+
+
+## Libraries
+
+* Several code libraries for R and Python will need to be installed by individual users on the lynx server; these are described in the respective tutorials.
