@@ -74,7 +74,7 @@ In this part of the tutorial, we are going to use the multi-species-coalescent m
 
 * If you don't have the directory `72_genes`, which was used in tutorial [Maximum-Likelihood Species-Tree Inference](../ml_species_tree_inference/README.md), on lynx anymore, download the compressed directory `72_genes.tgz` once again:
 
-		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/ml_species_tree_inference/data/72_genes.tgz
+		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/bayesian_species_tree_inference/data/72_genes.tgz
 
 * If you had to re-download the compressed directory, uncompress it on lynx:
 
