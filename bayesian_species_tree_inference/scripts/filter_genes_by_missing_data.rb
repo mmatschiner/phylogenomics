@@ -6,7 +6,7 @@ alignment_directory_out = ARGV[1].chomp("/")
 maximum_number_of_missing_sequences = ARGV[2].to_i
 
 # Create the output directory if it does not exist yet.
-unless Dir.exists?(alignment_directory_out)
+unless Dir.exist?(alignment_directory_out)
 	Dir.mkdir(alignment_directory_out)
 end
 
