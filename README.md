@@ -33,9 +33,9 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Species-Tree Inference with SNP Data](species_tree_inference_with_snp_data/README.md)<br>A tutorial on the inference of species trees from SNP data based on quartets
 
-<!--
 * [Divergence-Time Estimation with SNP Data](divergence_time_estimation_with_snp_data/README.md)<br>A tutorial on Bayesian divergence-time estimation with SNP data
 
+<!--
 * [Maximum-Likelihood Inference of Species Networks](ml_inference_of_species_networks/README.md)<br>A tutorial on maximum-likelihood phylogenetic inference of species networks
 
 * [Bayesian Inference of Species Networks](bayesian_inference_of_species_networks/README.md)<br>A tutorial on Bayesian phylogenetic inference of species networks
