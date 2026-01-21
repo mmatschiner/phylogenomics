@@ -75,35 +75,33 @@ Note that one of these *Neolamprologus* species, *Neolamprologus cancellatus* ("
 
 The dataset of SNP variation for the above-listed 28 individuals of 14 Lake Tanganyika cichlid species is stored in compressed variant-call format (VCF) in file `NC_031969.f5.sub1.vcf.gz`. To identify the SNPs most suitable for phylogenetic analysis, we will filter the information from this file with the program BCFtools.
 
-* Add the file `NC_031969.f5.sub1.vcf.gz` to your current directory on Saga, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/data` or by downloading it from GitHub, using one of the following two commands:
+* Download the file `NC_031969.f5.sub1.vcf.gz` from GitHub to your tutorial directory on lynx:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/data/NC_031969.f5.sub1.vcf.gz .
-		
-	or
-	
-		wget https://github.com/ForBioPhylogenomics/tutorials/raw/main/week2_data/NC_031969.f5.sub1.vcf.gz
+		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/species_tree_inference_with_snp_data/data/NC_031969.f5.sub1.vcf.gz
 
-* As mentioned above, one of the species included in the dataset, *Neolamprologus cancellatus*, is presumed to be a hybrid species. As hybridization would represent a violation of the multi-species-coalescent model, we will here exclude the two individuals of this species ("LJC9" and "LJD1") from the dataset. To exclude the two individuals from the VCF file with BCFtools, we can use the following commands:
+* Take a moment to familiarize yourself with the [VCF format specifications](https://samtools.github.io/hts-specs/VCFv4.2.pdf). There is no need to read the whole document now, but it's good if you know where to look up this format. The most important information is in sections 1.1-1.2.5 and 1.3-1.4.
 
-		module purge
-		module load BCFtools/1.12-GCC-10.2.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bcftools view -s ^LJC9,LJD1 -O z -o NC_031969.f5.sub2.vcf.gz NC_031969.f5.sub1.vcf.gz
+* As mentioned above, one of the species included in the dataset, *Neolamprologus cancellatus*, is presumed to be a hybrid species. As hybridization would represent a violation of the multi-species-coalescent model, we will here exclude the two individuals of this species ("LJC9" and "LJD1") from the dataset. To exclude the two individuals from the VCF file with BCFtools, use the following command:
+
+		bcftools view -s ^LJC9,LJD1 -O z -o NC_031969.f5.sub2.vcf.gz NC_031969.f5.sub1.vcf.gz
 
 	In the above command, the option `-s` specifies a list of individual IDs to be included or excluded, and the `^` character at the beginning of this list specifies that the taxa should be excluded rather than included. In addition, `-O z` specifies that the output should be written in compressed VCF format, and `-o` specifies the name of the output file. All options of BCFtools are described in the [BCFtools online manual](http://www.htslib.org/doc/bcftools.html), and you can quickly access the general help text of BCFtools or the more specific help text for its `view` command by typing only `bcftools` or `bcftools view`, respectively.
 	
-* To learn a bit about the dataset, you could browse through the first lines of the VCF file with the following command (without `srun`):
+* Make sure that the above command wrote a new file named `NC_031969.f5.sub2.vcf.gz`:
+
+		ls NC_031969.f5.sub2.vcf.gz
+
+* To learn a bit about the dataset, you could browse through the first lines of the VCF file with the following command:
 
 		bcftools view NC_031969.f5.sub2.vcf.gz | less -S
 
 	As shown in the next screenshot, this command should print the very first part of the header of the VCF file, marked by the double "#" symbol at the beginning of each line. You'll see that the very first line specifies the version of the VCF file format, that other lines beginning with "ALT", "FILTER", "FORMAT", and "INFO" describe the annotation of the records and genotypes, and that the lengths of various contigs are defined. Because all variation of this file was mapped to the Nile tilapia genome assembly, these "contigs" represent the Nile tilapia chromosomes.<p align="center"><img src="img/terminal1.png" alt="Terminal" width="700"></p>
 
-* If you scroll down a few lines, you'll find the information shown in the screenshot below. You should see that a single line begins with only one "#" symbol; this line specifies the content of each column in the table below it (note that the tab-delimited columns may appear shifted between this line and the lines below). Towards the right on that line, you'll see the first of the individual IDs ("IZA1", "IZC5", "AUE7",...), but the corresponding genotypes may not be visible yet in the lines below it because the fields with format information (the first of which begins with "AC=2;AF=0.004695;AN=36;BaseQRankSum=1.085;...") extend to the right end of the screen. These fields contain some information that we will use for filtering, including the total number of called alleles ("AN") and the total number of called non-reference alleles ("AC").<p align="center"><img src="img/terminal2.png" alt="Terminal" width="700"></p>
+* If you scroll down a few lines, you'll find the information shown in the screenshot below. You should see that only a single line begins with only one "#" symbol; this line specifies the content of each column in the table below it (note that the tab-delimited columns may appear shifted between this line and the lines below). Towards the right on that line, you'll see the first of the individual IDs ("IZA1", "IZC5", "AUE7",...), but the corresponding genotypes may not be visible yet in the lines below it because the fields with format information (the first of which begins with "AC=2;AF=0.004695;AN=36;BaseQRankSum=1.085;...") extend to the right end of the screen. These fields contain some information that we will use for filtering, including the total number of called alleles ("AN") and the total number of called non-reference alleles ("AC").<p align="center"><img src="img/terminal2.png" alt="Terminal" width="700"></p>
 	
 	**Question 1:** How far, approximately, is the spacing between SNPs? [(see answer)](#q1)
 	
 * To see the genotype information for the first few SNPs, hit the right-arrow key a few times to scroll to the right. You should then see the information shown in the next screenshot. Note that the tab-delimited columns are shifted between lines; thus, genotypes that appear to be in one column are not usually from the same individual. Per SNP, individuals that are homozygous for the reference allele are marked with "0/0", individuals homozygous for the first alternative allele are marked with "1/1", and "0/1" indicates heterozygous alleles. As you'll see, the dataset contains a large proportion of missing data, marked by "./.".<p align="center"><img src="img/terminal3.png" alt="Terminal" width="700"></p>
-
-	If you're not familiar with the VCF file format yet, you can find more information about it in the [format specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 	
 * Find out how many SNPs are included in total in the VCF file `NC_031969.f5.sub2.vcf.gz`. An easy way to do so is to run the following command:
 
@@ -111,7 +109,7 @@ The dataset of SNP variation for the above-listed 28 individuals of 14 Lake Tang
 				
 * We will now generate a reduced version of the dataset that includes only the most suitable SNPs for phylogenetic analysis. This means that we exclude all sites at which no alternative alleles are called for any of the individuals ("AC==0"), all sites at which only alternative alleles are called ("AC==AN"), and sites at which the proportion of missing data is greater than 20% ("F_MISSING > 0.2"). At the same time, we will ensure that only bi-allelic SNPs are included in the reduced dataset by using the BCFtools options `-m2` and `-M2` which set both the minimum (`-m`) and maximum (`-M`) number of alleles to 2. Thus, use the following BCFtools command to write the reduced dataset to a new file named `NC_031969.f5.sub3.vcf.gz`:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bcftools view -e 'AC==0 || AC==AN || F_MISSING > 0.2' -m2 -M2 -O z -o NC_031969.f5.sub3.vcf.gz NC_031969.f5.sub2.vcf.gz
+		bcftools view -e 'AC==0 || AC==AN || F_MISSING > 0.2' -m2 -M2 -O z -o NC_031969.f5.sub3.vcf.gz NC_031969.f5.sub2.vcf.gz
 
 * Check once again the total number of SNPs included in file `NC_031969.f5.sub3.vcf.gz`.
 
@@ -119,14 +117,14 @@ The dataset of SNP variation for the above-listed 28 individuals of 14 Lake Tang
 		
 * As we've seen above, some SNPs in file `NC_031969.f5.sub2.vcf.gz` were too close to each other on the chromosome to be considered independent markers. Some of these might have been removed in the last filtering step. Nevertheless, to ensure that no SNPs are closer to each other than a minimum distance of 100 bp, we can use the `prune` function of BCFtools:
 	
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bcftools +prune -w 100bp -n 1 -N 1st -o NC_031969.f5.sub4.vcf NC_031969.f5.sub3.vcf.gz
+		bcftools +prune -w 100bp -n 1 -N 1st -o NC_031969.f5.sub4.vcf NC_031969.f5.sub3.vcf.gz
 
 The filtered dataset in file `NC_031969.f5.sub4.vcf` should now contain 65,325 SNPs. Thus, a bit more than every second SNP have been removed in this last step.
 		
 <a name="svdquartets"></a>
 ## Species-tree inference with SVDQuartets
 
-SVDQuartets is a highly efficient tool to estimate the species-tree topology based on SNP data under the multi-species-coalescent model. It does so by calculating the single-value decomposition (SVD) score ([Chifman and Kubatko 2014](https://doi.org/10.1093/bioinformatics/btu530)) for each possible four-species (quartet) topologies in the dataset, and by optimizing the overall tree topology to maximize these scores of quartets induced by the tree topology. The SVD score itself is calculated on the basis of a matrix of the genotype probabilities in a given quartet and on the dimensionality of this matrix (see [Chifman and Kubatko 2014](https://doi.org/10.1093/bioinformatics/btu530) for details). The great advantage of species-tree inference with SVDQuartets is the very short analysis time required even for datasets of millions of SNPs. Moreover, simulations have shown that species-tree SVDQuartets is relatively robust to horizontal gene flow even though this process violates the multi-species coalescent model used for the inference ([Long and Kubatko 2018](https://doi.org/10.1093/sysbio/syy020)). However, a drawback of species-tree inference with SVDQuartets is that only the topology and no branch lengths can be inferred.
+SVDQuartets is a highly efficient tool to estimate the species-tree topology based on SNP data under the multi-species-coalescent model. It does so by calculating the single-value decomposition (SVD) score ([Chifman and Kubatko 2014](https://doi.org/10.1093/bioinformatics/btu530)) for each possible four-species (quartet) topologies in the dataset, and by optimizing the overall tree topology to maximize these scores of quartets induced by the tree topology. The SVD score itself is calculated on the basis of a matrix of the genotype probabilities in a given quartet and on the dimensionality of this matrix (see [Chifman and Kubatko 2014](https://doi.org/10.1093/bioinformatics/btu530) for details). The great advantage of species-tree inference with SVDQuartets is the very short analysis time required even for datasets of millions of SNPs. Moreover, simulations have shown that SVDQuartets is relatively robust to horizontal gene flow even though this process violates the multi-species coalescent model used for the inference ([Long and Kubatko 2018](https://doi.org/10.1093/sysbio/syy020)). However, a drawback of species-tree inference with SVDQuartets is that only the topology and no branch lengths can be inferred.
 
 The dataset is now sufficiently filtered for analysis with SVDQuartets. However, as SVDQuartets is implemented in PAUP\* and PAUP\* does not accept VCF files as input, we'll need to convert file `NC_031969.f5.sub4.vcf` into Nexus format. We can use the Ruby script `convert_vcf_to_nexus.rb`.
 
