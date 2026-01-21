@@ -128,77 +128,49 @@ SVDQuartets is a highly efficient tool to estimate the species-tree topology bas
 
 The dataset is now sufficiently filtered for analysis with SVDQuartets. However, as SVDQuartets is implemented in PAUP\* and PAUP\* does not accept VCF files as input, we'll need to convert file `NC_031969.f5.sub4.vcf` into Nexus format. We can use the Ruby script `convert_vcf_to_nexus.rb`.
 
-* Add the script `convert_vcf_to_nexus.rb` to your current directory on Saga, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading it from GitHub, using one of the following two commands:
-
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/convert_vcf_to_nexus.rb .
-
-	or
+* Download the script `convert_vcf_to_nexus.rb` to your tutorial directory on lynx:
 	
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/convert_vcf_to_nexus.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/species_tree_inference_with_snp_data/scripts/convert_vcf_to_nexus.rb
 		
 * Use the script to convert the SNP dataset of `NC_031969.f5.sub4.vcf` to Nexus format:
 
-		module purge
-		module load Ruby/2.7.2-GCCcore-9.3.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby convert_vcf_to_nexus.rb NC_031969.f5.sub4.vcf NC_031969.f5.sub4.nex
+		ruby convert_vcf_to_nexus.rb NC_031969.f5.sub4.vcf NC_031969.f5.sub4.nex
 
 * Have a look at the Nexus file `NC_031969.f5.sub4.nex`, for example using `less -S`:
 
 		less -S NC_031969.f5.sub4.nex
 		
-	Note that heterozygous sites have been coded with [IUPAC ambiguity codes](https://en.wikipedia.org/wiki/Nucleic_acid_notation), so that for example a "C/T" allele has been replace with the letter "Y". While many phylogenetic algorithms can not deal with this ambiguity information, SVDQuartets will automatically recognize that both alleles are present heterozygously in the individual and will consider both in its calculations of the SVD score.
+	Note that heterozygous sites have been coded with [IUPAC ambiguity codes](https://en.wikipedia.org/wiki/Nucleic_acid_notation), so that for example a "C/T" allele has been replaced with the letter "Y". While many phylogenetic algorithms can not deal with this ambiguity information, SVDQuartets will automatically recognize that both alleles are present heterozygously in the individual and will consider both in its calculations of the SVD score.
 
-* If you have the PAUP\* GUI installed on your own computer, you can use the following steps to run a first SVDQuartets analysis (if not, scroll down to the next black bullet point):
+* For a first SVDQuartets analysis, start PAUP\* interactively on the command line:
 
-	* Download file `NC_031969.f5.sub4.nex` from Saga to your own computer using `scp`.
-
-	* Open the Nexus file `NC_031969.f5.sub4.nex` in PAUP\*, and make sure that the option "Execute" is set in the opening dialog, as shown in the next screenshot.<p align="center"><img src="img/paup1.png" alt="PAUP\*" width="700"></p>
-
-	* To specify the two individuals of *Astatotilapia burtoni* ("IZA1" and "IZC5") as the outgroup, click on "Define Outgroup..." in PAUP\*'s "Data" menu, as shown below.<p align="center"><img src="img/paup2.png" alt="PAUP\*" width="700"></p>
-
-	* Then, move the "IZA1" and "IZC5" into the field for the outgroup taxa with the "To Outgroup &rarr;" button, as shown in the next screenshot, and click "OK".<p align="center"><img src="img/paup3.png" alt="PAUP\*" width="700"></p> 
-
-	* We are first going to run SVDQuartets with all individuals as separate taxa to verify that these in fact appear monophyletic before we group all individuals per species in a second analysis. To select the settings for this first SVDQuartets analysis, click on "SVDQuartets..." in PAUP\*'s "Analysis" menu, as shown in the next screenshot.<p align="center"><img src="img/paup4.png" alt="PAUP\*" width="700"></p> 
-
-	* In the pop-up window for the SVDQuartets settings, choose "Evaluate all possible quartets" in the field at the top for "Quartet evaluation". With a larger dataset and limited computational resources, one might want to evaluate only a certain subset instead, but with the compraratively small dataset used in our analysis, evaluating all quartets will be very fast, so there is no reason to only analyze a subset. You can leave the default values for for all other options. Make sure that "Handling of ambiguities" is set to "Distribute". This specifies that the IUPAC ambiguity code for heterozygous sites will be correctly interpreted as both alleles being present in the individual, rather than uncertainty about any of the alleles. The pop-up window should then look as in the next screenshot. Click "OK" if it does.<p align="center"><img src="img/paup5.png" alt="PAUP\*" width="700"></p>This analysis should finish within a few seconds.
-
-	* Have a look at the output in the PAUP\* screen, where the tree estimated by SVDQuartets should now be shown.
-
-* If you are using the command-line version of PAUP\* on Saga, use these commands for the first SVDQuartets analysis:
-
-	* Load the PAUP\* module.
-
-			module load PAUP/4.0a168-centos64
+		paup
 			
-	* Start PAUP\* interactively on the command line:
+* In the interactive PAUP\* session, load the Nexus file `NC_031969.f5.sub4.nex` using the PAUP\* command `execute`:
 
-			srun --ntasks=1 --mem-per-cpu=1G --time=00:30:00 --account=nn9458k --pty paup
+		execute NC_031969.f5.sub4.nex
 			
-	* In the interactive PAUP\* session, load the Nexus file `NC_031969.f5.sub4.nex` using the PAUP\* command `execute`:
+* To specify the two individuals of *Astatotilapia burtoni* ("IZA1" and "IZC5") as the outgroup, we first need to find out which numbers PAUP\* is using for these two individuals in its taxon list. To get these numbers, use PAUP\*s `tstatus` command with option `full`:
 
-			execute NC_031969.f5.sub4.nex
+		tstatus full
 			
-	* To specify the two individuals of *Astatotilapia burtoni* ("IZA1" and "IZC5") as the outgroup, we first need to find out which numbers PAUP\* is using for these two individuals in its taxon list. To get these numbers, use PAUP\*s `tstatus` command with option `full`:
-
-			tstatus full
-			
-		As you'll see, the numbers used for individuals "IZA1" and "IZC5" are "1" and "2", respectively.
+	As you'll see, the numbers used for individuals "IZA1" and "IZC5" are "1" and "2", respectively.
 		
-	* Define the individuals "IZA1" and "IZC5" as the outgroup using PAUP\*s `outgroup` command:
+* Define the individuals "IZA1" and "IZC5" as the outgroup using PAUP\*s `outgroup` command:
 
-			outgroup 1 2
+		outgroup 1 2
 			
-	* Then, simply start the SVDQuartets analysis with PAUP\*'s `svdQuartets` command (the default settings correspond exactly to those used above for the analysis with the GUI version):
+* Then, simply start the SVDQuartets analysis with PAUP\*'s `svdQuartets` command (the default settings correspond exactly to those used above for the analysis with the GUI version):
 
-			svdQuartets
+		svdQuartets
 
-		This analysis should only take a few seconds, and then output the tree on the screen.
+	This analysis should only take a few seconds, and then output the tree on the screen.
 
-	* Quit the interactive PAUP\* session with `quit`.
+* Quit the interactive PAUP\* session with `quit`.
 
 	**Question 3:** Do the two individuals of each species cluster monophyletically? Use the table in the [Dataset](#dataset) section to find out. [(see answer)](#q3)
 
-* In a second analysis with SVDQuartets, we are going to specify which individuals come from the same species, so that SVDQuartets can use this information to estimate a tree with species as taxa. To specify this information, write the following text to a file named `taxpartitions.txt` (either on your own computer or on Saga, depending on whether you use the PAUP\* GUI or its command-line version): 
+* In a second analysis with SVDQuartets, we are going to specify which individuals come from the same species, so that SVDQuartets can use this information to estimate a tree with species as taxa. To specify this information, write the following text to a file named `taxpartitions.txt`: 
 		
 		BEGIN SETS;
 			TAXPARTITION SPECIES =
@@ -219,58 +191,35 @@ The dataset is now sufficiently filtered for analysis with SVDQuartets. However,
 		
 	The above text block uses the "Sets" command of the very flexible Nexus format (a complete format reference can be found in [Maddison et al. 1997](https://academic.oup.com/sysbio/article/46/4/590/1629695)). It specifies that the first two sequences in the Nexus file correspond to species "astbur", the next two sequences correspond to species "altfas" and so on.
 		
-* The alignment file `NC_031969.f5.sub4.nex` and the file `taxpartitions.txt` that was written in the last step then need to be combined into a single file in Nexus format.
+* The alignment file `NC_031969.f5.sub4.nex` and the file `taxpartitions.txt` that was written in the last step then need to be combined into a single file in Nexus format. Use `cat` to combine the two files:
 
-	* If you do this on your own computer, just open both files in a text editor and copy-paste the content of file `taxpartitions.txt` at the end of file `NC_031969.f5.sub4.nex`; then save this as a new file named `NC_031969.f5.sub4.parts.nex`.
+		cat NC_031969.f5.sub4.nex taxpartitions.txt > NC_031969.f5.sub4.parts.nex
 
-	* If you do this on Saga, use `cat` to combine the two files:
+* To run the second SVDQuartets analysis, launch PAUP\* again interactively:
 
-			cat NC_031969.f5.sub4.nex taxpartitions.txt > NC_031969.f5.sub4.parts.nex
+		paup
 
+* Load the Nexus file ` NC_031969.f5.sub4.parts.nex` using the PAUP\* command `execute`:
 
-* If you are using the PAUP\* GUI, take the following steps for the second SVDQuartets analysis:
+		execute NC_031969.f5.sub4.parts.nex
 
-	* Open the new Nexus file `NC_031969.f5.sub4.parts.nex` again in PAUP\* and make sure that "Execute" is selected in the opening dialog. You will be asked if you want to reset the active datafile. Click "Yes" to do so.
+* Again define the individuals "IZA1" and "IZC5" as the outgroup with PAUP\*s `outgroup` command:
 
-	* Once again define the individuals of *Astatotilapia burtoni* ("IZA1" and "IZC5") as the outgroup with "Define Outgroup..." in the "Data" menu.
-
-	* Click "SVDQuartets..." again in the "Analysis" menu. In the settings for the SVDQuartets analysis, again use "Evaluate all possible quartets" and make sure that "Distribute" is selected for "Handling of ambiguities". Unlike in the first analysis, now assign the individuals to species by setting a tick in the last checkbox next to "Assign tips to species using taxon partition". The "SPECIES" taxon partition should already be selected in the drop-down menu to the right of it; this is the taxon set definition that we had added in Nexus format to the end of the alignment file. To also perform a bootstrapping analysis this time to assess node support for the species tree, set a tick in the checkbox next to "Perform bootstrapping". With 100 bootstrap replicates, the bootstrapping analysis might take around 20 minutes; if you would prefer not to wait that long you could set the number of bootstrap replicates to 50 instead. Another way to speed up the analysis is to use all CPUs available on your machine. To do so, simply click the "#CPUs" button in the bottom right of the settings window. This window should then look as shown in the next screenshot; click "OK" if it does.<p align="center"><img src="img/paup7.png" alt="PAUP\*" width="700"></p>
-
-	* While the bootstrapping analysis is running, have a look at the screen output of PAUP\*, which should look as shown in the next screenshot.<p align="center"><img src="img/paup8.png" alt="PAUP\*" width="700"></p>You'll see that PAUP\* has already generated a species tree, and that it reports the number of quartets that are comparable or incomparable with this tree. If all quartets would be comparable with this tree, this would indicate complete absence of incomplete lineage sorting and other processes that might violate the multi-species coalescent model, such as introgression or paralogous sequences in the alignment. However, these processes can not be excluded, and introgression is in fact very likely among the species included in this dataset.
-
-	* Once bootstrapping has completed, PAUP\* should print the same species tree once again, this time with bootstrap node support values as shown in the screenshot below.<p align="center"><img src="img/paup9.png" alt="PAUP\*" width="700"></p>
-
-	* Before closing PAUP\*, save the species tree with bootstrap support values to a new file named `NC_031969.f5.sub4.parts.tre` by clicking "Save Trees to File..." in PAUP\*'s "Trees" menu. Before you click "Save", first open a settings dialog by clicking the "More Options..." button. This should open another dialog window as shown in the next screenshot. In that window, select  "As internal node labels (only for other programs)" as the option for "Bootstrap/jackknife values". By saving the node-support values in this way, they will be readable e.g. for FigTree. Then, click "OK" and save the species tree.<p align="center"><img src="img/paup10.png" alt="PAUP\*" width="700"></p>
-
-* To alternatively run the second SVDQuartets analysis with the command-line version of PAUP\* on Saga, use the following commands:
-
-	* Start PAUP\* interactively, this time asking for 6 CPUs with option `--cpus-per-task=6`:
-
-			srun --ntasks=1 --cpus-per-task=6 --mem-per-cpu=1G --time=00:30:00 --account=nn9458k --pty paup
-
-	* Load the Nexus file ` NC_031969.f5.sub4.parts.nex` using the PAUP\* command `execute`:
-
-			execute NC_031969.f5.sub4.parts.nex
-
-	* Again define the individuals "IZA1" and "IZC5" as the outgroup with PAUP\*s `outgroup` command:
-
-			outgroup 1 2
+		outgroup 1 2
 			
-	* Start the SVDQuartets analysis again with PAUP\*'s `svdQuartets` command
+* Start the SVDQuartets analysis again with PAUP\*'s `svdQuartets` command, this time specifying that a bootstrapping analysis should be added to assess node support for the species tree. As the bootstrapping might take a while on a single node, use `nthreads=6` to specify that the analysis should be run on 6 threads:
 	
-			svdQuartets taxpartition=SPECIES bootstrap=standard nthreads=6
+		svdQuartets taxpartition=SPECIES bootstrap=standard nthreads=6
 			
-		Due to the invoked bootstrapping, this analysis may now take a few minutes.
+* Save the inferred tree with branch labels:
 
-	* Save the inferred tree with branch labels:
+		saveTrees file='NC_031969.f5.sub4.parts.tre' supportValues=nodeLabels
 
-			saveTrees file='NC_031969.f5.sub4.parts.tre' supportValues=nodeLabels
+* Quit the interactive PAUP\* session with `quit`.
 
-	* Quit the interactive PAUP\* session with `quit`.
+* Download the tree file `NC_031969.f5.sub4.parts.tre` from lynx to your own computer using `scp`.
 
-	* Download the tree file `NC_031969.f5.sub4.parts.tre` from Saga to your own computer using `scp`.
-
-* When you open the species tree inferred with SVDQuartets in FigTree, it should appear as shown in the next screenshot.<p align="center"><img src="img/figtree1.png" alt="PAUP\*" width="700"></p>
+* When you open the species tree inferred with SVDQuartets in FigTree, it should appear as shown in the next screenshot (after selecting to display support values as node labels, adjusting label sizes, and reorienting).<p align="center"><img src="img/figtree1.png" alt="PAUP\*" width="700"></p>
 
 	**Question 4:** Does the species tree inferred by SVDQuartets appear reliable? [(see answer)](#q4)
 	
@@ -301,7 +250,7 @@ The species tree reveals that the divergence of the four *Neolamprologus* specie
 
 <a name="q3"></a>
 
-* **Question 3:** The (first half of) the tree should look as in the next screenshot, where indeed the two individuals of each of the 14 species all appear next to each other, indicating monophyly of all species. While non-monophyly of species could result from incomplete lineage sorting, it could also indicate misidentified individuals. In any case, the fact that species appear monophyletic means that there is no reason not to combine individuals per species into one unit and use species as taxa in another analysis with SVDQuartets.<p align="center"><img src="img/paup6.png" alt="PAUP\*" width="700"></p>
+* **Question 3:** The (first half of the) tree should look as in the next screenshot, where indeed the two individuals of each of the 14 species all appear next to each other, indicating monophyly of all species. While non-monophyly of species could result from incomplete lineage sorting, it could also indicate misidentified individuals. In any case, the fact that species appear monophyletic means that there is no reason not to combine individuals per species into one unit and use species as taxa in another analysis with SVDQuartets.<p align="center"><img src="img/terminal4.png" alt="PAUP\*" width="700"></p>
 
 
 <a name="q4"></a>
@@ -311,4 +260,4 @@ The species tree reveals that the divergence of the four *Neolamprologus* specie
 
 <a name="q5"></a>
 
-* **Question 5:** In tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md), a species tree was inferred with StarBeast3 based on sequence data from twelve genes and eleven cichlid species. Of these species, four are also included in the species tree produced here with SVDQuartets, these are *Neolamprologus brichardi* ("neobri"), *Neolamprologus gracilis* ("neogra"), *Neolamprologus marunguensis* ("neomar"), and *Neolamprologus olivaceous* ("neooli"). The relationship of these four species received moderate support in the species tree resulting from the SVDQuartets analysis: *Neolamprologus brichardi* ("neobri") and *Neolamprologus olivaceous* ("neooli") are the most closely related of the four species, with a bootstrap support of 83. The support for the clustering of this pair of species with *Neolamprologus gracilis* ("neogra") receives a similarly strong bootstrap support of 93. The sister-group relationship of the two species *Neolamprologus brichardi* ("neobri\_spc") and *Neolamprologus olivaceous* ("neooli\_spc") was also recovered with the StarBeast3 analysis (shown in the screenshot below), albeit only with a low Bayesian posterior probability of 0.5. But in contrast to the SVDQuartets species tree, *Neolamprologus marunguensis* ("neomar_spc") instead of *Neolamprologus gracilis* ("neogra\_spc") appeared as the next-closest species in the species tree estimated by StarBeast3, again with a very low Bayesian posterior probability of 0.38. Thus, while the two topologies are in conflict with each other, the topology inferred with StarBeast3 did not receive strong support and may thus be incorrect. This difference in the degree of support between the two analyses is not surprising, given that we used a dataset of over 60,000 SNPs for SVDQuartets but only 12 sequence alignments with StarBeast3. <p align="center"><img src="img/figtree2.png" alt="PAUP\*" width="700"></p>
+* **Question 5:** In tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md), a species tree was inferred with StarBeast3 based on sequence data from twelve genes and eleven cichlid species. Of these species, five are also included in the species tree produced here with SVDQuartets; these are *Neolamprologus brichardi* ("neobri"), *Neolamprologus gracilis* ("neogra"), *Neolamprologus marunguensis* ("neomar"), and *Neolamprologus olivaceous* ("neooli"), as well as the species that is here used as outgroup, *Astatotilapia burtoni* ("astbur"). The relationships of the four species *Neolamprologus* species received moderate support in the species tree resulting from the SVDQuartets analysis: *Neolamprologus brichardi* ("neobri") and *Neolamprologus olivaceous* ("neooli") are the most closely related of the four species, with a bootstrap support around 82. The support for the clustering of this pair of species with *Neolamprologus gracilis* ("neogra") receives a bootstrap support of around 92. The grouping of the two species *Neolamprologus brichardi* ("neobri\_spc") and *Neolamprologus olivaceous* ("neooli\_spc") was also recovered with the StarBeast3 analysis (shown in the screenshot below), albeit only with a low Bayesian posterior probability of 0.5. But in contrast to the SVDQuartets species tree, *Neolamprologus marunguensis* ("neomar_spc") instead of *Neolamprologus gracilis* ("neogra\_spc") appeared as the next-closest species in the species tree estimated by StarBeast3, again with a very low Bayesian posterior probability of around 0.38. Thus, while the two topologies are in conflict with each other, the topology inferred with StarBeast3 did not receive strong support and may thus be incorrect. This difference in the degree of support between the two analyses is not surprising, given that we used a dataset of over 60,000 SNPs for SVDQuartets but only 12 sequence alignments with StarBeast3. <p align="center"><img src="img/figtree2.png" alt="PAUP\*" width="700"></p>

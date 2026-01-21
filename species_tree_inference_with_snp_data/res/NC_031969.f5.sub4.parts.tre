@@ -1,0 +1,23 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Wed Jan 21 17:25:32 2026]
+[!
+>Data file = NC_031969.f5.sub4.parts.nex
+]
+	Translate
+		1 astbur,
+		2 altfas,
+		3 telvit,
+		4 neobri,
+		5 neochi,
+		6 neocra,
+		7 neogra,
+		8 neohel,
+		9 neomar,
+		10 neooli,
+		11 neopul,
+		12 neosav,
+		13 neowal
+		;
+tree 'PAUP_1' = [&U] (1,2,(3,((((((4,(10,11)62)82,8)95,7)92,(6,9)100)98,12)100,(5,13)100)100)100)100;
+End;
