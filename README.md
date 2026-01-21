@@ -14,23 +14,26 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Bayesian Phylogenetic Inference](bayesian_phylogeny_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated phylogenies
 
-<!--
-* [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils-->
+<!-- XXX This may be optional XXX
+* [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils
+-->
 
+<!-- XXX The ASTER* path may still change  XXX-->
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
 
 ## Day 2
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees
 
-<!--
-
+<!-- XXX This needs to wait until Cactus is installed XXX
 * [Whole-Genome Alignment](whole_genome_alignment/README.md)<br>A tutorial on repeat masking and whole-genome alignment of assembled genomes
+-->
 
-#### Wednesday
+## Day 3
 
 * [Species-Tree Inference with SNP Data](species_tree_inference_with_snp_data/README.md)<br>A tutorial on the inference of species trees from SNP data based on quartets
 
+<!--
 * [Divergence-Time Estimation with SNP Data](divergence_time_estimation_with_snp_data/README.md)<br>A tutorial on Bayesian divergence-time estimation with SNP data
 
 * [Maximum-Likelihood Inference of Species Networks](ml_inference_of_species_networks/README.md)<br>A tutorial on maximum-likelihood phylogenetic inference of species networks

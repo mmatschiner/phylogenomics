@@ -63,7 +63,7 @@ The dataset used in this tutorial is a set of alignments for 72 genes, extracted
 		java -jar Astral/astral.5.7.8.jar
 -->
 
-* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in [ASTER* (Accurate Species Tree EstimatoR)]((https://github.com/chaoszhang/ASTER)) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
+* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) and associated programs allow efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in [ASTER* (Accurate Species Tree EstimatoR)]((https://github.com/chaoszhang/ASTER)) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
 		
 		wget https://github.com/chaoszhang/ASTER/archive/refs/heads/Linux.zip
 		unzip Linux.zip
