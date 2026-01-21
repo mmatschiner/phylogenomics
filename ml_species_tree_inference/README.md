@@ -51,34 +51,7 @@ The dataset used in this tutorial is a set of alignments for 72 genes, extracted
 	
 * **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Being a GUI program, FigTree can not be run on lynx, but needs to be installed and used on your local computer (see [Requirements](../requirements/README.md)). Input files for FigTree will thus need to be downloaded from lynx. 
 
-<!--
-* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) allows efficient and accurate estimation of the species tree based on a set of gene trees. ASTRAL is not installed on lynx, but it can easily be made available simply by placing it in the analysis directory. This can be done with the following commands:
-
-		wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
-		unzip Astral.5.7.8.zip
-		rm Astral.5.7.8.zip
-				
-	The program can then be tested with this command, which should output the help text of ASTRAL:
-	
-		java -jar Astral/astral.5.7.8.jar
--->
-
-* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) and associated programs allow efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is implemented in [ASTER* (Accurate Species Tree EstimatoR)]((https://github.com/chaoszhang/ASTER)) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)). ASTER* is not yet installed on lynx, but it can easily be made available with the following commands:
-		
-		wget https://github.com/chaoszhang/ASTER/archive/refs/heads/Linux.zip
-		unzip Linux.zip
-		cd ASTER-Linux/
-		make
-		cd ..
-		mkdir ~/ASTER
-		mv ASTER-Linux/bin/* ~/ASTER
-		rm -r ASTER-Linux/
-		rm Linux.zip
-				
-	ASTRAL can then be tested with this command, which should output its help text:
-	
-		~/ASTER/astral
-
+* **ASTRAL:** The program [ASTRAL](https://github.com/smirarab/ASTRAL) ([Zhang et al. 2017](https://doi.org/10.1007/978-3-319-67979-2_4)) and associated programs allow efficient and accurate estimation of the species tree based on a set of gene trees. The latest version of ASTRAL, ASTRAL IV is part of the [ASTER* (Accurate Species Tree EstimatoR)]((https://github.com/chaoszhang/ASTER)) ([Zhang et al. 2025](https://doi.org/10.1093/molbev/msaf172)) program package. The programs from this package are installed on lynx, and can be called with `astral` and `wastral`.
 
 <a name="iqtree"></a>
 ## Maximum-likelihood gene-tree inference with IQ-TREE
@@ -182,7 +155,7 @@ ASTRAL infers the species tree by searching for the topology that agrees with th
 
 * Have a look at the help text of Weighted ASTRAL:
 
-		~/ASTER/wastral
+		wastral
 
 	In the last two lines of the help text, you'll see that this version of ASTRAL could be run as simply as `wastral -o output_file input_file` or `wastral -i input_file -o output_file`. Of the remaining options, the last one, `--mode` is the one we'll use to explore the effects of weighing:
 	
@@ -195,10 +168,10 @@ ASTRAL infers the species tree by searching for the topology that agrees with th
 
 * Run wASTRAL with all four modes, saving the resulting species tree in different files each time:
 
-		~/ASTER/wastral --mode 1 -o wastral_mode1.tre ml_best.trees
-		~/ASTER/wastral --mode 2 -o wastral_mode2.tre ml_best.trees
-		~/ASTER/wastral --mode 3 -o wastral_mode3.tre ml_best.trees
-		~/ASTER/wastral --mode 4 -o wastral_mode4.tre ml_best.trees
+		wastral --mode 1 -o wastral_mode1.tre ml_best.trees
+		wastral --mode 2 -o wastral_mode2.tre ml_best.trees
+		wastral --mode 3 -o wastral_mode3.tre ml_best.trees
+		wastral --mode 4 -o wastral_mode4.tre ml_best.trees
 		
 	Each of the four analyses should finish instantaneously. The screen output of each analysis should include a score on the last line; however, these scores are not relevant for us as they aren't comparable between the different modes. The second-last line reports the resulting species-tree topology, but not with branch lengths or support values. The estimated species tree with branch lengths and support values can be found in the output files `wastral_mode1.tre`, `wastral_mode2.tre`, `wastral_mode3.tre`, and `wastral_mode4.tre`.
 	

@@ -18,7 +18,6 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 * [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils
 -->
 
-<!-- XXX The ASTER* path may still change  XXX-->
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
 
 ## Day 2
