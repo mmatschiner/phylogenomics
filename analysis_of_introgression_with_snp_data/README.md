@@ -263,21 +263,20 @@ However, we need to edit the tree file before we can use it with Dsuite. First, 
 
 * Download the script `plot_d.rb` from GitHub to your tutorial directory:
 
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/plot_d.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/scripts/plot_d.rb
 
 * When executing the script `plot_d.rb`, one of Dsuite's output files must be specified as input, together with a maximum *D* value and a maximum p value (specified as the negative of the log of the *p*-value) that will limit the color scale used in the heatmap, and the name for the output file with the plot. Use `individuals_dsuite_BBAA.txt` as the input file, a maximum *D* of 0.7, a maximum negative log of the *p*-value of 8 (so that *p*-values of 10<sup>-8</sup> or lower are shown with full opacity), and the output file name `individuals_dsuite_BBAA.svg`:
 
-		module load Ruby/2.7.2-GCCcore-9.3.0
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby plot_d.rb individuals_dsuite_BBAA.txt species_order.txt 0.7 individuals_dsuite_BBAA.svg
+		ruby plot_d.rb individuals_dsuite_BBAA.txt species_order.txt 0.7 individuals_dsuite_BBAA.svg
 		
 * The heatmap plot in file `individuals_dsuite_BBAA.svg` is written in scalable vector graphic (SVG) format. Download this file to your own computer with `scp` and then open it with a program capable of reading files in SVG format, for example with a browser such as Safari, Chrome, or Firefox, or with Adobe Illustrator. The heatmap plot should look as shown below:<p align="center"><img src="img/individuals_dsuite_BBAA.png" alt="Heatmap BBAA" width="600"></p> As you can see from the color legend in the bottom right corner, the colors of this heatmap show two things at the same time, the *D*-statistic as well as its *p*-value. So red colors indicate higher *D*-statistics, and generally more saturated colors indicate greater significance. Thus, the strongest signals for introgression are shown with saturated red, as in the bottom right of the color legend. All cells in rows or columns for "neocan" should be colored in red or purple corresponding to a highly significant values of the *D*-statistic of at least 0.3.
 
-	In case that you're wondering why the heatmap looks symmetric, that is because no matter whether the maximum value of the *D*-statistic for two species is obtained with the first species in position P2 and the second in position P3 or vice versa, the same value is plotted. The reason for this is that even though different values may result in the two cases, those differences should not be taken as evidence for a directionality of introgression from P3 to P2; it could just as well have come from P2 and into P3.
+	In case that you're wondering why the heatmap looks symmetric, that is because no matter whether the maximum value of the *D*-statistic for two species is obtained with the first species in position P2 and the second in position P3 or vice versa, the same value is plotted. The reason for this is that even though different values may result in the two cases, those differences should not be taken as evidence for a directionality of introgression from P3 to P2; it could just as well have gone from P2 into P3.
 
 * Before further interpreting the patterns of introgression shown in the heatmap, also produce heatmap plots for the other two of Dsuite's output files, `individuals_dsuite_Dmin.txt` and `individuals_dsuite_tree.txt`:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby plot_d.rb individuals_dsuite_Dmin.txt species_order.txt 0.7 individuals_dsuite_Dmin.svg
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby plot_d.rb individuals_dsuite_tree.txt species_order.txt 0.7 individuals_dsuite_tree.svg
+		ruby plot_d.rb individuals_dsuite_Dmin.txt species_order.txt 0.7 individuals_dsuite_Dmin.svg
+		ruby plot_d.rb individuals_dsuite_tree.txt species_order.txt 0.7 individuals_dsuite_tree.svg
 		
 * Also download the two plot files `individuals_dsuite_Dmin.svg` and `individuals_dsuite_tree.svg` to your own computer with `scp`.
 
@@ -287,11 +286,7 @@ However, we need to edit the tree file before we can use it with Dsuite. First, 
 
 Like the *D*-statistic, we can also plot the *f*<sub>4</sub>-ratio, quantifying the fraction of genomes inferred to be admixed, in the same way with a heatmap. This can be done with the Ruby script `plot_f4ratio.rb`, which works exactly like the `plot_d.rb` script.
 
-* Add the script `plot_f4ratio.rb` to your current directory on Saga, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading it from GitHub with one of the following two commands:
-
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/plot_f4ratio.rb .
-
-	or
+* Download the script `plot_f4ratio.rb` from GitHub to your current tutorial directory on lynx:
 
 		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/plot_f4ratio.rb
 
