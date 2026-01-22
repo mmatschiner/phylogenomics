@@ -175,48 +175,53 @@ From answering the above question or reading the answer, you will have learned t
 
 To use the `--tree` option of Dsuite, we will obviously need a tree file. As a basis for that, we can use the time-calibrated species tree generated in tutorial [Divergence-Time Estimation with SNP Data](../divergence_time_estimation_with_snp_data/README.md), in file `snapp.tre`.
 
-* Make sure that you still have the file `snapp.tre`, and if not, get it either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/res` or download it from GitHub, using one of the following two commands:
-
-		cp /cluster/projects/nn9458k/phylogenomics/week2/res/snapp.tre .
-		
-	or
+* Place file `snapp.tre` in your current tutorial directory. If you should not have it anymore, download it from GitHub:
 	
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_res/snapp.tre
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/data/snapp.tre
 
 However, we need to edit the tree file before we can use it with Dsuite. First, Dsuite requires tree files in Newick format, but the tree file `snapp.tre` is written in Nexus format. Second, as the tree generated in tutorial [Divergence-Time Estimation with SNP Data](../divergence_time_estimation_with_snp_data/README.md) did not include *Neolamprologus cancellatus*, we will need to add this species to the tree manually.
 
-* To convert the file `snapp.tre` from Nexus to Newick format, make sure that the R script `convert_to_newick.r` is still in your current directory on Saga:
+* To convert the file `snapp.tre` from Nexus to Newick format, place the R script `convert_to_newick.r` in your current tutorial directory on lynx (this is one of the short scripts that was written in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md). If you should not have it, you can write it from scratch with the following content:
 
-		ls convert_to_newick.r
+		# Load the ape library.
+		library("ape")
 		
-	If the file should be missing, have a look at tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) to see how they should be written.
+		# Get the command-line arguments.
+		args <- commandArgs(trailingOnly = TRUE)
+		nexus <- args[1]
+		nwk <- args[2]
+		
+		# Read the file with a tree in nexus format.
+		tree <- read.nexus(nexus)
+		
+		# Write a new file with a tree in newick format.
+		write.tree(tree, nwk)
 		
 * Then execute the script to convert the tree in Nexus format in file `snapp.tre` to a tree in Newick format that is written to a new file named `snapp.nwk`:
 
-		module load R/4.0.0-foss-2020a
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty Rscript convert_to_newick.r snapp.tre snapp.nwk
+		Rscript convert_to_newick.r snapp.tre snapp.nwk
 
 * To add *Neolamprologus cancellatus* ("neocan") to the tree, we need to make a decision about where to place it. Perhaps the best way to do this would be a separate phylogenetic analysis, but as we will see later, there is no single true position of *Neolamprologus cancellatus* ("neocan") in the species tree anyway. So for now it will be sufficient to use the counts of shared derived sites from file `individuals_dsuite_BBAA.txt` as an indicator for where best to place the species. Thus, we need to find the largest count of derived sites that *neocan* shares with any other species. To do this, use the following command on Saga:
 
 		cat individuals_dsuite_BBAA.txt | grep neocan | sort -n -k 8 -r | head -n 1
 
-	This should produce the following line:
+	This should produce the following line (perhaps with slightly different values):
 	
-		altfas	neocan	neooli	0.503496	12.8118	0	0.152775	14857.6	4294	1418.02
+		altfas	neocan	neooli	0.510282	12.98	2.3e-16	0.153592	14847.8	4280.19	1387.88
 
-	This output shows that the overall largest *C*<sub>BBAA</sub> value in a trio including "neocan" is 14,857.6, and that this number is found in the trio in which "altfas" is P1, "neocan" is P2, and "neooli" is P3. This means that "neocan" appears to be more closely related to "altfas" than to other species in the dataset.
+	This output shows that the overall largest *C*<sub>BBAA</sub> value in a trio including "neocan" is 14,847.8, and that this number is found in the trio in which "altfas" is P1, "neocan" is P2, and "neooli" is P3. This means that "neocan" appears to be more closely related to "altfas" than to other species in the dataset.
 	
 * Write a new file in Newick file named `snapp_w_neocan.nwk` in which "neocan" is inserted into the tree string as the sister species of "altfas". The easiest way to do this to replace "altfas" with "(altfas:1.0,neocan:1.0)", including the parentheses (the branch length of 1.0 is arbitrary but will not be used by Dsuite anyway), using `sed`:
 
 		cat snapp.nwk | sed "s/altfas/(altfas:1.0,neocan:1.0)/g" > snapp_w_neocan.nwk
 
-	File `snapp_w_neocan.nwk` should then contain the following tree string:
+	File `snapp_w_neocan.nwk` should then contain more or less the following tree string:
 	
-		(((altfas:1.0,neocan:1.0):2.6520367123213346,((((((neobri:0.5240051105707518,(neooli:0.3610385760756361,neopul:0.3610385760756361):0.16296653449511578):0.06084458117051339,neohel:0.5848496917412653):0.11293049810600309,((neocra:0.5011109162246027,neomar:0.5011109162246028):0.09226605826642365,neogra:0.5933769744910264):0.10440321535624186):0.14067115586556878,neosav:0.8384513457128372):0.28515609256191665,telvit:1.1236074382747534):0.060210462250667174,(neochi:0.06552780931213173,neowal:0.06552780931213173):1.1182900912132892):1.4682188117959136):4.311456556721317,astbur:6.963493269042651);
+		(((altfas:1.0,neocan:1.0):1.826569531,(((((((neobri:0.3170969728,neohel:0.3170969728):0.05836845593,(neooli:0.2604167446,neopul:0.2604167446):0.1150486841):0.04990235248,neogra:0.4253677812):0.02586303825,(neocra:0.3094358661,neomar:0.3094358661):0.1417949534):0.1087353347,neosav:0.5599661541):0.2528471379,telvit:0.812813292):0.06564223118,(neochi:0.0344368948,neowal:0.0344368948):0.8440186284):0.9481140077):2.636058023,astbur:4.462627554):0;
 
 * Run Dsuite again, this time adding the `-t` (or `--tree`) option to specify the newly prepared tree file `snapp_w_neocan.nwk`:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:02:00 --account=nn9458k --pty Dsuite Dtrios -t snapp_w_neocan.nwk NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt
+		Dsuite Dtrios -t snapp_w_neocan.nwk NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt
 
 	This Dsuite analysis should again take no longer than about a  minute. The output should be identical to the previously written output except that a file named `individuals_dsuite_tree.txt` should now also be written.
 
@@ -228,9 +233,9 @@ However, we need to edit the tree file before we can use it with Dsuite. First, 
 		cat individuals_dsuite_Dmin.txt | tail -n +2 | sort -g -k 4 -r | head -n 1
 		cat individuals_dsuite_tree.txt | tail -n +2 | sort -g -k 4 -r | head -n 1
 		
-	You should see that the highest *D*-statistic reported in file `individuals_dsuite_Dmin.txt` (0.503496) is smaller than those in the the other two files (0.777784 in both cases). This is not surprising, given that, as explained above, the *D*<sub>min</sub> values are conservative measure of introgression in a given trio. The high *D*-statistic of 0.777784 is reported for the trio in which "altfas" is P1, "neocan" is P2, and "telvit" is P3. Following this *D*-statistic in the fourth column, the Z-score in the fifth column should be 39.9918, the *p*-value should be reported as 0, and the *f*<sub>4</sub>-ratio should be 0.413526. The number of derived sites shared between "altfas" and "neocan" (*C*<sub>BBAA</sub>) should be reported as 12,928.8, while "neocan" and "telvit" share 7,200.16 derived sites (*C*<sub>ABBA</sub>) and "altfas" and "telvit" share 899.99 derived sites (*C*<sub>BABA</sub>). The *D*-statistic in files `individuals_dsuite_BBAA.txt` and `individuals_dsuite_tree.txt` was thus calculated as
+	You should see that the highest *D*-statistic reported in file `individuals_dsuite_Dmin.txt` (around 0.51) is smaller than those in the the other two files (around 0.78 in both cases). This is not surprising, given that, as explained above, the *D*<sub>min</sub> values are a conservative measure of introgression in a given trio. The high *D*-statistic of 0.78 is reported for the trio in which "altfas" is P1, "neocan" is P2, and "telvit" is P3. Following this *D*-statistic in the fourth column, the Z-score in the fifth column should be around 39.87, the *p*-value should be reported as 2.3e-16 (the lowest *p*-value that Dsuite can report), and the *f*<sub>4</sub>-ratio should be around 0.39. The number of derived sites shared between "altfas" and "neocan" (*C*<sub>BBAA</sub>) should be reported as around 12,900, while "neocan" and "telvit" share around 7,200 derived sites (*C*<sub>ABBA</sub>) and "altfas" and "telvit" share 870 derived sites (*C*<sub>BABA</sub>). The *D*-statistic in files `individuals_dsuite_BBAA.txt` and `individuals_dsuite_tree.txt` was thus calculated as
 	
-	*D* = (7200.16 - 899.99) / (7200.16 + 899.99) = 0.777784.
+	*D* = (7200 - 870) / (7200 + 870) = 0.78.
 	
 * Once again have a look at file `individuals_dsuite_BBAA.txt`, for example with `less`:
 
@@ -256,11 +261,7 @@ However, we need to edit the tree file before we can use it with Dsuite. First, 
 		
 	(note that even though the outgroup "astbur" is included in the tree file, we here exclude it because it was never placed in the positions of P2 or P3 in the Dsuite analyses).
 
-* Add the script `plot_d.rb` to your current directory on Saga by downloading it from GitHub, using one of the following two commands:
-
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/plot_d.rb .
-
-	or
+* Download the script `plot_d.rb` from GitHub to your tutorial directory:
 
 		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/plot_d.rb
 
