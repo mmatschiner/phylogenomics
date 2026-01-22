@@ -24,7 +24,7 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees
 
-<!-- XXX This needs to wait until Cactus is installed XXX
+<!-- XXX This needs to wait until I know how to use conda_share_init inside Slurm XXX
 * [Whole-Genome Alignment](whole_genome_alignment/README.md)<br>A tutorial on repeat masking and whole-genome alignment of assembled genomes
 -->
 
@@ -34,15 +34,17 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Divergence-Time Estimation with SNP Data](divergence_time_estimation_with_snp_data/README.md)<br>A tutorial on Bayesian divergence-time estimation with SNP data
 
+<!-- XXX This needs to wait until babette can be installed
 * [Maximum-Likelihood Inference of Species Networks](ml_inference_of_species_networks/README.md)<br>A tutorial on maximum-likelihood phylogenetic inference of species networks
+* -->
 
-<!--
+<!-- XXX This may be optional XXX
 * [Bayesian Inference of Species Networks](bayesian_inference_of_species_networks/README.md)<br>A tutorial on Bayesian phylogenetic inference of species networks
-
-#### Thursday
+-->
 
 * [Analysis of Introgression with SNP Data](analysis_of_introgression_with_snp_data/README.md)<br>A tutorial on the analysis of hybridization and introgression with SNP data
 
+<!--
 * [Analysis of Introgression with Tree Topologies](analysis_of_introgression_with_tree_topologies/README.md)<br>A tutorial on the analysis of hybridization and introgression with tree topologies from across the genome.
 
 #### Friday

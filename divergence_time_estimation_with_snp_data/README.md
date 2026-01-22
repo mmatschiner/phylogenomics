@@ -107,7 +107,7 @@ As mentioned above and in tutorial [Species-Tree Inference with SNP Data](../spe
 	
 * Examples for the table and constraint files can be found on the [GitHub repository for `snapp_prep.rb`](https://github.com/mmatschiner/snapp_prep). Have a look at these example files; the example table file is named [`example.spc.txt`](https://github.com/mmatschiner/snapp_prep/blob/master/example.spc.txt) and the example constraint file is named [`example.con.txt`](https://github.com/mmatschiner/snapp_prep/blob/master/example.con.txt).
 
-* To prepare the table file assigning individuals to species, open a new file named `individuals.txt` with a text editor available on Saga, and write the following text to this new file:
+* To prepare the table file assigning individuals to species, open a new file named `individuals.txt` with a text editor available on lynx, and write the following text to this new file:
 
 		species	individual
 		astbur	IZC5
