@@ -201,7 +201,7 @@ However, we need to edit the tree file before we can use it with Dsuite. First, 
 
 		Rscript convert_to_newick.r snapp.tre snapp.nwk
 
-* To add *Neolamprologus cancellatus* ("neocan") to the tree, we need to make a decision about where to place it. Perhaps the best way to do this would be a separate phylogenetic analysis, but as we will see later, there is no single true position of *Neolamprologus cancellatus* ("neocan") in the species tree anyway. So for now it will be sufficient to use the counts of shared derived sites from file `individuals_dsuite_BBAA.txt` as an indicator for where best to place the species. Thus, we need to find the largest count of derived sites that *neocan* shares with any other species. To do this, use the following command on Saga:
+* To add *Neolamprologus cancellatus* ("neocan") to the tree, we need to make a decision about where to place it. Perhaps the best way to do this would be a separate phylogenetic analysis, but as we will see later, there is no single true position of *Neolamprologus cancellatus* ("neocan") in the species tree anyway. So for now it will be sufficient to use the counts of shared derived sites from file `individuals_dsuite_BBAA.txt` as an indicator for where best to place the species. Thus, we need to find the largest count of derived sites that *neocan* shares with any other species. To do this, use the following command on lynx:
 
 		cat individuals_dsuite_BBAA.txt | grep neocan | sort -n -k 8 -r | head -n 1
 
@@ -319,7 +319,7 @@ The *f*-branch statistic can be quantified with Dsuite's `Fbranch` command.
 
 		Dsuite Fbranch snapp_w_neocan.nwk individuals_dsuite_tree.txt > fbranch.txt
 
-* To plot the *f*-branch statistic, another script from the [Dsuite GitHub](https://github.com/millanek/Dsuite) repository is required, namely the Python script named `dtools.py`. Download this script to your current directory on Saga:
+* To plot the *f*-branch statistic, another script from the [Dsuite GitHub](https://github.com/millanek/Dsuite) repository is required, namely the Python script named `dtools.py`. Download this script to your tutorial directory on lynx:
 
 		wget https://raw.githubusercontent.com/millanek/Dsuite/master/utils/dtools.py
 
@@ -435,15 +435,11 @@ To see a pattern that has previously been interpreted as a biological signal rat
 
 * Download the dataset of SNPs on scaffold 18 for Lake Malawi cichlids from GitHub to your current tutorial directory on lynx:
 
-		wget https://github.com/ForBioPhylogenomics/tutorials/raw/main/week2_data/scaffold_18.vcf.gz
+		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/analysis_of_introgression_with_snp_data/data/scaffold_18.vcf.gz
 
-* Also add a prepared file with a table assigning individual IDs to species IDs for the Lake Malawi dataset, using one of the following two commands:
+* Also download a prepared file with a table assigning individual IDs to species IDs for the Lake Malawi dataset:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/data/MalawiSetsFile.txt .
-		
-	or
-	
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_data/MalawiSetsFile.txt
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/data/MalawiSetsFile.txt
 		
 * Write a new version of the file specifying the species trio:
 
@@ -451,13 +447,13 @@ To see a pattern that has previously been interpreted as a biological signal rat
 
 * To start sliding-window analyses with these input files (and smaller window sizes), execute the following command:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty Dsuite Dinvestigate -w 50,10 scaffold_18.vcf.gz MalawiSetsFile.txt test_trios.txt
+		Dsuite Dinvestigate -w 50,10 scaffold_18.vcf.gz MalawiSetsFile.txt test_trios.txt
 		
 	This time, Dsuite should take just a bit over a minute to finish.
 	
 * Plot the results again as before with R:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:15:00 --account=nn9458k --pty R
+		R
 		table <- read.table("mbuna_deep_Diplotaxodon_localFstats__50_10.txt", header=T)
 		windowCenter=(table$windowStart+table$windowEnd)/2
 		pdf("mbuna_deep_Diplotaxodon_localFstats__50_10.pdf", height=7, width=7)
@@ -485,7 +481,7 @@ A very simple alternative way of investigating patterns of ancestry in potential
 
 To generate an ancestry painting, we will need to run two Ruby scripts. The first of these, `get_fixed_site_gts.rb` determines the alleles of the putative hybrid species at sites that are fixed differently in the two putative parental species. The second script, `plot_fixed_site_gts.rb` then uses the output of the first script to draw an ancestry painting.
 
-* Add the two scripts to your current directory on Saga, either by copying them from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading them from GitHub with one of the following two pairs of commands:
+* Add the two scripts to your current tutorial directory on lynx, either by copying them from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading them from GitHub with one of the following two pairs of commands:
 
 		cp /cluster/projects/nn9458k/phylogenomics/week2/src/get_fixed_site_gts.rb .
 		cp /cluster/projects/nn9458k/phylogenomics/week2/src/plot_fixed_site_gts.rb .
@@ -542,11 +538,11 @@ While the effect of reference bias may rarely large enough to lead to false conc
 
 In this part of the tutorial, I am going to demonstrate how SNPs can be extracted from a whole-genome alignment, using the whole-genome alignment for five *Neolamprologus* species and the outgroup Nile tilapia that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md).
 
-* Make sure that you still have the whole-genome alignment in MAF format, in file `cichlids_chr5.maf` that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), in your current directory on Saga. If not, you can copy one prepared version of it from `/cluster/projects/nn9458k/phylogenomics/week2/data`:
+* Make sure that you still have the whole-genome alignment in MAF format, in file `cichlids_chr5.maf` that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), in your current tutorial directory on lynx. If not, you can copy one prepared version of it from `/cluster/projects/nn9458k/phylogenomics/week2/data`:
 
 		cp /cluster/projects/nn9458k/phylogenomics/week2/res/cichlids_chr5.maf .
 		
-* Add the Python script `make_vcf_from_maf.py` to your current directory on Saga, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading it from GitHub with one of the following two commands:
+* Add the Python script `make_vcf_from_maf.py` to your current directory on lynx, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading it from GitHub with one of the following two commands:
 
 		cp /cluster/projects/nn9458k/phylogenomics/week2/src/make_vcf_from_maf.py .
 		
@@ -573,7 +569,7 @@ In this part of the tutorial, I am going to demonstrate how SNPs can be extracte
 
 To analyze the new VCF file with Dsuite, we still need a file with a table assigning individual IDs to species IDs. In this case, the IDs that were used in the whole-genome alignment ("orenil", "neomar", etc.) were individual IDs and species IDs at the same time, but we nevertheless have to write the table file for Dsuite, and we need to specify the outgroup in this file.
 
-* Write a new file named `individuals_wga_dsuite.txt` in your current directory on Saga, with the following content:
+* Write a new file named `individuals_wga_dsuite.txt` in your tutorial directory on lynx, with the following content:
 
 		orenil	Outgroup
 		neomar	neomar
