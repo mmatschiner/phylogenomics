@@ -481,15 +481,10 @@ A very simple alternative way of investigating patterns of ancestry in potential
 
 To generate an ancestry painting, we will need to run two Ruby scripts. The first of these, `get_fixed_site_gts.rb` determines the alleles of the putative hybrid species at sites that are fixed differently in the two putative parental species. The second script, `plot_fixed_site_gts.rb` then uses the output of the first script to draw an ancestry painting.
 
-* Add the two scripts to your current tutorial directory on lynx, either by copying them from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading them from GitHub with one of the following two pairs of commands:
+* Download the two scripts from GitHub to your current tutorial directory on lynx:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/get_fixed_site_gts.rb .
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/plot_fixed_site_gts.rb .
-
-	or
-
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/get_fixed_site_gts.rb
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/plot_fixed_site_gts.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/scripts/get_fixed_site_gts.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/scripts/plot_fixed_site_gts.rb
 
 As the first script requires an uncompressed VCF file as input, first uncompress the VCF file for the SNP dataset with the following command:
 
@@ -505,7 +500,7 @@ As the first script requires an uncompressed VCF file as input, first uncompress
 
 	We'll use `NC_031969.f5.sub1.vcf` as the input and name the output file `pops1.fixed.txt`. Assuming that the parental species are *Altolamprologus fasciatus* ("altfas") and *Telmatochromis vittatus* ("telvit") and the hybrid species is *Neolamprologus cancellatus* ("neocan"), we'll specify the sample IDs for these species with the strings "AUE7,AXD5", "JBD5,JBD6", and "LJC9,LJD1". Finally, we'll filter for sites without missing data by specifying "1.0" as the sixth argument. Thus, run the script `get_fixed_site_gts.rb` with the following command:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby get_fixed_site_gts.rb NC_031969.f5.sub1.vcf pops1.fixed.txt AUE7,AXD5 LJC9,LJD1 JBD5,JBD6 1.0
+		ruby get_fixed_site_gts.rb NC_031969.f5.sub1.vcf pops1.fixed.txt AUE7,AXD5 LJC9,LJD1 JBD5,JBD6 1.0
 
 * The second script, `plot_fixed_site_gts.rb`, expects four arguments, which are
 	* the name of the file written by script `get_fixed_site_gts.rb`,
@@ -515,7 +510,7 @@ As the first script requires an uncompressed VCF file as input, first uncompress
 
 	We'll use the file `pops1.fixed.txt` as input, name the output file `pops1.fixed.svg`, require again that no missing data remains in the output, and we'll thin the remaining distances so that those plotted have a minimum distance of 1,000 bp to each other. Thus, use the following command to draw the ancestry painting:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby plot_fixed_site_gts.rb pops1.fixed.txt pops1.fixed.svg 1.0 1000
+		ruby plot_fixed_site_gts.rb pops1.fixed.txt pops1.fixed.svg 1.0 1000
 		
 	The screen output of this script will include some warnings about unexpected genotypes, these can be safely ignored as the script automatically excludes those sites. At the very end, the output should indicate that 6,069 sites with the required completeness were found, these are the sites included in the ancestry painting. Th output also reports, for all analyzed specimens, the heterozygosity at those 6,069 sites. For first-generation hybrids, this heterozygosity is expected to be close to 1.
 
@@ -559,7 +554,7 @@ In this part of the tutorial, I am going to demonstrate how SNPs can be extracte
 	
 * Extract SNPs from alignment blocks of the whole-genome alignment `cichlids_chr5.maf` that have a minimum length of 500 bp (`-l 500`), a minimum completeness of 80% (`-c 0.8`), and include sequences from all six species of the whole-genome alignment (`-x 6`):
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:05:00 --account=nn9458k --pty python make_vcf_from_maf.py cichlids_chr5.maf cichlids_chr5.vcf -l 500 -c 0.8 -x 6
+		python make_vcf_from_maf.py cichlids_chr5.maf cichlids_chr5.vcf -l 500 -c 0.8 -x 6
 
 	**Question 10:** How many SNPs are extracted from the whole-genome alignment? [(see answer)](#q10)
 	
@@ -582,7 +577,7 @@ To analyze the new VCF file with Dsuite, we still need a file with a table assig
 
 * Then, run Dsuite's `Dtrios` command to analyze the VCF file `cichlids_chr5.vcf`:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:05:00 --account=nn9458k --pty Dsuite Dtrios cichlids_chr5.vcf individuals_wga_dsuite.txt
+		Dsuite Dtrios cichlids_chr5.vcf individuals_wga_dsuite.txt
 
 * Have a look at the output file `individuals_wga_dsuite_BBAA.txt` written by Dsuite:
 
