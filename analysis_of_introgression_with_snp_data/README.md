@@ -539,11 +539,10 @@ In this part of the tutorial, I am going to demonstrate how SNPs can be extracte
 		
 * Download the Python script `make_vcf_from_maf.py` from GitHub to your current directory on lynx:
 
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/make_vcf_from_maf.py
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/scripts/make_vcf_from_maf.py
 
 * Have a look at the help text of the script `make_vcf_from_maf.py`:
 
-		module load Python/3.8.2-GCCcore-9.3.0
 		python make_vcf_from_maf.py -h
 
 	You'll see that the script requires two parameters that specify the name of the input file in MAF format and the name of an output file in VCF format, and that additionally, a minimum length of alignment blocks (`-l`), a minimum completeness of these blocks (`-c`), and a minimum number of sequences per block (`-x`) can be specified. These options are analogous to those of the script `make_alignments_from_maf.py` that was used in tutorial [Maximum-Likelihood Inference of Species Networks](../ml_inference_of_species_networks/README.md) and are here supposed to allow filtering of the most reliable alignment blocks.
@@ -551,6 +550,8 @@ In this part of the tutorial, I am going to demonstrate how SNPs can be extracte
 * Extract SNPs from alignment blocks of the whole-genome alignment `cichlids_chr5.maf` that have a minimum length of 500 bp (`-l 500`), a minimum completeness of 80% (`-c 0.8`), and include sequences from all six species of the whole-genome alignment (`-x 6`):
 
 		python make_vcf_from_maf.py cichlids_chr5.maf cichlids_chr5.vcf -l 500 -c 0.8 -x 6
+
+	This may run for a few minutes.
 
 	**Question 10:** How many SNPs are extracted from the whole-genome alignment? [(see answer)](#q10)
 	
