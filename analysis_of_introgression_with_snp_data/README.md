@@ -288,11 +288,11 @@ Like the *D*-statistic, we can also plot the *f*<sub>4</sub>-ratio, quantifying 
 
 * Download the script `plot_f4ratio.rb` from GitHub to your current tutorial directory on lynx:
 
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/plot_f4ratio.rb
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/analysis_of_introgression_with_snp_data/scripts/plot_f4ratio.rb
 
 * Use the `plot_f4ratio.rb` script to produce a heatmap of the *f*<sub>4</sub>-ratio values in file `individuals_dsuite_BBAA.txt`, as before for the *D*-statistic but with a maximum value of 0.2:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby plot_f4ratio.rb individuals_dsuite_BBAA.txt species_order.txt 0.4 individuals_dsuite_BBAA_f4.svg
+		ruby plot_f4ratio.rb individuals_dsuite_BBAA.txt species_order.txt 0.4 individuals_dsuite_BBAA_f4.svg
 
 * Download the plot file `individuals_dsuite_BBAA_f4.svg` to your own computer and open it in a program capable of reading files in SVG format. The heatmap should look as shown below:<p align="center"><img src="img/individuals_dsuite_BBAA_f4.png" alt="Heatmap BBAA f4" width="600"></p>
 
@@ -305,7 +305,7 @@ The two script `plot_d.rb` and `plot_f4ratio.rb` both illustrate signals of intr
 
 To distinguish between signals of introgression that might be side effects, and those signals that might have caused these side effect, the *f*-branch statistic has been developed by Svardal and Malinsky and was first introduced in [Malinsky et al. (2018)](https://doi.org/10.1038/s41559-018-0717-x). The *f*-branch statistic builds upon and formalises verbal arguments employed by [Martin et al. (2013)](https://doi.org/10.1101/gr.159426.113), who used these lines of reasoning to assign introgression to specific internal branches on the phylogeny of *Heliconius* butterflies. It thus makes use of the whole set of results together with information about the tree topology to determine those branches that most likely exchanged genetic information with each other.
 
-The logic of the *f*-branch statistic is illustrated in the following figure. The panel **a** provides an example illustrating interdependences between different *f*<sub>4</sub>-ratio values, which can be informative about the timing of introgression. In this example, different choices for the P1 population provide constraints on when the genetic exchange could have happened. **b)** Based on relationships between the f4-ratio results from different four taxon tests, the *f*-branch statistic distinguishes between introgression at different time periods, assigning signals to different (possibly internal) branches in the phylogeny.<img src="img/FbranchIllustation.png" alt="f-branch illustration" width="1000"></p>
+The logic of the *f*-branch statistic is illustrated in the following figure. The panel **a** provides an example illustrating interdependences between different *f*<sub>4</sub>-ratio values, which can be informative about the timing of introgression. In this example, different choices for the P1 population provide constraints on when the genetic exchange could have happened. **b)** Based on relationships between the *f*<sub>4</sub>-ratio results from different four-taxon tests, the *f*-branch statistic distinguishes between introgression at different time periods, assigning signals to different (possibly internal) branches in the phylogeny.<img src="img/FbranchIllustation.png" alt="f-branch illustration" width="1000"></p>
 
 The *f*-branch statistic can be quantified with Dsuite's `Fbranch` command.
 
@@ -317,21 +317,21 @@ The *f*-branch statistic can be quantified with Dsuite's `Fbranch` command.
 	
 * Quantify the *f*-branch statistic with the `Fbranch` command, using `snapp_w_neocan.nwk` as the input tree file and `individuals_dsuite_tree.txt` as the file with output from `Dtrios`:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k Dsuite Fbranch snapp_w_neocan.nwk individuals_dsuite_tree.txt > fbranch.txt
+		Dsuite Fbranch snapp_w_neocan.nwk individuals_dsuite_tree.txt > fbranch.txt
 
 * To plot the *f*-branch statistic, another script from the [Dsuite GitHub](https://github.com/millanek/Dsuite) repository is required, namely the Python script named `dtools.py`. Download this script to your current directory on Saga:
 
 		wget https://raw.githubusercontent.com/millanek/Dsuite/master/utils/dtools.py
 
-* To execute the script `dtools.py`, an additional Python library named `pandas` is required. Install this library in with `pip`:
+* To execute the script `dtools.py`, an additional Python library named `matplotlib` is required. Install this library with `pip`:
 
-		module load Python/3.8.2-GCCcore-9.3.0
-		pip install --user pandas
-		pip install --user matplotlib
+		conda_init_shared
+		python3 -m pip install matplotlib
+		conda deactivate
 
 * Then, run the Python script `dtools.py` to plot the *f*-branch statistic, using the files `fbranch` and `snapp_w_neocan.nwk` as input and specifying "astbur" as the outgroup:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty python dtools.py fbranch.txt snapp_w_neocan.nwk --outgroup=astbur
+		python dtools.py fbranch.txt snapp_w_neocan.nwk --outgroup=astbur
 	
 	This command should have written two new files named `fbranch.png` and `fbranch.svg` for the plot of the *f*-branch statistic.
 	
@@ -360,7 +360,7 @@ To quantify the *D*-statistic in sliding windows across the genome, Dsuite's `Di
 		
 * In addition, we'll use the VCF file `NC_031969.f5.sub1.vcf.gz`, the table file `individuals_dsuite.txt`, and a window size of 500 SNPs, incremented by 100 SNPs per iteration. To start sliding-window analyses with these settings, execute the following command:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty Dsuite Dinvestigate -w 500,100 NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt test_trios.txt 
+		Dsuite Dinvestigate -w 500,100 NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt test_trios.txt 
 		
 	This analysis should take less than a minute. Dsuite should then have written a file named `altfas_neocan_telvit_localFstats__500_100.txt`.
 	
@@ -377,14 +377,10 @@ To quantify the *D*-statistic in sliding windows across the genome, Dsuite's `Di
 	This should show that 235 windows were used in Dsuite's Dinvestigate analysis. If this number would be much higher or lower, the information density could be adjusted by specifying a larger or smaller window size with `-w`.
 	
 To visualize the variation of the *D* and *f*<sub>dM</sub> statistics across chromosome 5, we'll generate plots with the R environment.
-
-* Load the module for R:
-
-		module load R/4.0.0-foss-2020a
 		
-* Start R interactively on the command line using `srun`:
+* Start R interactively on the command line:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:15:00 --account=nn9458k --pty R
+		R
 	
 * Then, write the following commands to read file `altfas_neocan_telvit_localFstats__500_100.txt` and plot the *D* and *f*<sub>dM</sub> statistics against the chromosomal position of the center of the alignment:
 
@@ -399,24 +395,24 @@ To visualize the variation of the *D* and *f*<sub>dM</sub> statistics across chr
 
 		quit(save="no")
 
-	The above commands should have written the plot to a file named `altfas_neocan_telvit_localFstats__500_100.pdf` in the current directory on Saga.
+	The above commands should have written the plot to a file named `altfas_neocan_telvit_localFstats__500_100.pdf` in your tutorial directory on lynx.
 	
 * Make sure that the file has been written:
 
 		ls altfas_neocan_telvit_localFstats__500_100.pdf
 		
-* Download the file `altfas_neocan_telvit_localFstats__500_100.pdf` from Saga to your own computer with `scp`, and then open the file to see the plot.
+* Download the file `altfas_neocan_telvit_localFstats__500_100.pdf` from lynx to your own computer with `scp`, and then open the file to see the plot.
 
-	The plot should show that the *D*-statistic (in gray) is almost in all windows substantially higher than the *f*<sub>dM</sub>-statistic (in black):<p align="center"><img src="img/trio1.png" alt="Dinvestigate" width="600"></p> There also appears to be a dip in both statistics at around 5 Mbp; however, whether this is an artifact resulting from e.g. missing data or misassembly in the reference genome, or whether it shows a biological signal of reduced introgression is difficult to tell without further analyses.
+	The plot should show that the *D*-statistic (in gray) is almost in all windows substantially higher than the *f*<sub>dM</sub>-statistic (in black):<p align="center"><img src="img/trio1.png" alt="Dinvestigate" width="600"></p> There also appears to be a dip in both statistics at around 5 Mbp; however, whether this is an artifact resulting from, e.g., missing data or misassembly in the reference genome, or whether it shows a biological signal of reduced introgression is difficult to tell without further analyses.
 
-* Repeat the same for a second trio that appeared to show signals of introgression, composed of *Neolamprologus olivaceous* ("neooli"), *N. pulcher* ("neopul), and *N. brichardi* ("neobri"). To do so, use these commands on Saga:
+* Repeat the same for a second trio that appeared to show signals of introgression, composed of *Neolamprologus olivaceous* ("neooli"), *N. pulcher* ("neopul), and *N. brichardi* ("neobri"). To do so, use these commands on lynx:
 
 		echo -e "neooli\tneopul\tneobri" > test_trios.txt
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty Dsuite Dinvestigate -w 500,100 NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt test_trios.txt
+		Dsuite Dinvestigate -w 500,100 NC_031969.f5.sub1.vcf.gz individuals_dsuite.txt test_trios.txt
 
-* To produce the same type of plot as before now for the trio of "neooli", "neopul", and "neobri", start R again interactively using `srun`:
+* To produce the same type of plot as before now for the trio of "neooli", "neopul", and "neobri", start R again interactively:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:15:00 --account=nn9458k --pty R
+		R
 
 * Then, enter the following commands:
 
@@ -429,20 +425,16 @@ To visualize the variation of the *D* and *f*<sub>dM</sub> statistics across chr
 		
 * Again, quit the R environment with `quit(save="no")`.
 
-* Download the file `neooli_neopul_neobri_localFstats__500_100.pdf` from Saga to your own computer and open it.
+* Download the file `neooli_neopul_neobri_localFstats__500_100.pdf` from lynx to your own computer and open it.
 
 	This second plot, showing the *D*-statistic and the *f*<sub>dM</sub>-statistic for the trio composed of *Neolamprologus olivaceous* ("neooli"), *N. pulcher* ("neopul), and *N. brichardi* ("neobri"), should look like the one shown below:<p align="center"><img src="img/trio2.png" alt="Dinvestigate" width="600"></p>
 
-	As you can see, both statistics are lower than for the first trio. Notably, the dip at around 5 Mbp that was apparent in both statistics for the first trio is again visible. As it appears improbable that the same region has more introgression in both species trios, this may indicate that the dip is in fact caused by technical artifacts rather than biological processes. To further investigate whether any of the peaks or troughs in this plot result from actual changes in the introgression proportion, it might be necessary to compare the *D* and *f*<sub>dM</sub>-statistics to measures of between-species differentiation (*F*<sub>ST</sub>) and divergence (*d*<sub>XY</sub>) (see, e.g. [The Heliconius Genome Consortium 2012](https://doi.org/10.1038/nature11041)). The reliability of these patterns could also be tested by repeating the analysis after mapping to an alternative, if possible more closely related, reference genome. Such in-depth analyses of introgressed loci based on genome scans are covered, for example, in the [Physalia Speciation Genomics workshop](https://speciationgenomics.github.io) run by Mark Ravinet and Joana Meier.
+	As you can see, both statistics are lower than for the first trio. Notably, the dip at around 5 Mbp that was apparent in both statistics for the first trio is again visible. As it appears improbable that the same region has more introgression in both species trios, this may indicate that the dip is in fact caused by technical artifacts rather than biological processes. To further investigate whether any of the peaks or troughs in this plot result from actual changes in the introgression proportion, it might be necessary to compare the *D* and *f*<sub>dM</sub>-statistics to measures of between-species differentiation (*F*<sub>ST</sub>) and divergence (*d*<sub>XY</sub>) (see, e.g., [The Heliconius Genome Consortium 2012](https://doi.org/10.1038/nature11041)). The reliability of these patterns could also be tested by repeating the analysis after mapping to an alternative, if possible more closely related, reference genome. Such in-depth analyses of introgressed loci based on genome scans are covered, for example, in the [Speciation & Population Genomics tutorials](https://speciationgenomics.github.io) by [Mark Ravinet](https://genomicislands.wordpress.com) and [Joana Meier](https://www.zoo.cam.ac.uk/directory/joana-meier).
 
 To see a pattern that has previously been interpreted as a biological signal rather than an artifact, we will repeat the above analyses with Dsuite's `Dinvestigate` command using a second dataset. This dataset was produced by [Malinsky et al. (2018)](https://doi.org/10.1038/s41559-018-0717-x) for 135 species of cichlid fishes from Lake Malawi. The study by Malinsky et al. found that two lineages of cichlids adapted to deep water share signatures of selection and very similar haplotypes in two green-sensitive opsin genes (RH2Aβ and RH2B). These genes are located next to each other on scaffold 18.
 
-* Add the dataset of SNPs on scaffold 18 for Lake Malawi cichlids to your current directory on Saga, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/data` or by downloading it from GitHub, using one of the following two commands:
+* Download the dataset of SNPs on scaffold 18 for Lake Malawi cichlids from GitHub to your current tutorial directory on lynx:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/data/scaffold_18.vcf.gz .
-		
-	or
-	
 		wget https://github.com/ForBioPhylogenomics/tutorials/raw/main/week2_data/scaffold_18.vcf.gz
 
 * Also add a prepared file with a table assigning individual IDs to species IDs for the Lake Malawi dataset, using one of the following two commands:
