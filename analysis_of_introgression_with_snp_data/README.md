@@ -529,20 +529,16 @@ As the first script requires an uncompressed VCF file as input, first uncompress
 
 Reference bias can generate artificial signals of introgression when SNP datasets are based on mapping to a reference genome ([Günther and Nettelblad 2019](https://doi.org/10.1371/journal.pgen.1008302)). This is because reads with smaller numbers of substitutions compared to the reference may map better than those that have more substitutions, with the effect that the mapped genomes may appear slightly more similar to the reference genome than they truly are. The strength of this effect depends on the quantity and quality of the mapped reads as well as the phylogenetic distance to the reference species, and so genomes that are of lower quality, have a lower coverage, or are more distant to the reference species are more strongly affected than others. One way to minimize the risk of reference bias is to sequence all genomes with a similar coverage and quality and to map to an outgroup species that is equally distant to all ingroup species. However, even in such cases, species with a higher rate of evolution may be more affected than those with lower rates, as the higher rate of evolution also increases the genetic distance between these species and the reference.
 
-While the effect of reference bias may rarely large enough to lead to false conclusions of introgression, it might be a good idea to confirm any signals of introgression with an approach that is not based on mapping and thus immune to reference bias. One such approach is to use variant calls extracted from a whole-genome alignment. As these alignments are based on assemblies and not on mapping, no reference is used and thus no reference bias can arise. However, to analyse such datasets with Dsuite, SNPs need to be extracted from the whole-genome alignment and stored in a file in VCF format.
+While the effect of reference bias may rarely be large enough to lead to false conclusions of introgression, it might be a good idea to confirm any signals of introgression with an approach that is not based on mapping and thus immune to reference bias. One such approach is to use variant calls extracted from a whole-genome alignment. As these alignments are based on assemblies and not on mapping, no reference is used and thus no reference bias can arise. However, to analyse such datasets with Dsuite, SNPs need to be extracted from the whole-genome alignment and stored in a file in VCF format.
 
 In this part of the tutorial, I am going to demonstrate how SNPs can be extracted from a whole-genome alignment, using the whole-genome alignment for five *Neolamprologus* species and the outgroup Nile tilapia that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md).
 
-* Make sure that you still have the whole-genome alignment in MAF format, in file `cichlids_chr5.maf` that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), in your current tutorial directory on lynx. If not, you can copy one prepared version of it from `/cluster/projects/nn9458k/phylogenomics/week2/data`:
+* Make sure that you still have the whole-genome alignment in MAF format, in file `cichlids_chr5.maf` that was produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), in your current tutorial directory on lynx. If not, you can copy one prepared version of it from `/data/share/teaching/phylogenomics/data`:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/res/cichlids_chr5.maf .
+		cp /data/share/teaching/phylogenomics/data/cichlids_chr5.maf .
 		
-* Add the Python script `make_vcf_from_maf.py` to your current directory on lynx, either by copying it from `/cluster/projects/nn9458k/phylogenomics/week2/src` or by downloading it from GitHub with one of the following two commands:
+* Download the Python script `make_vcf_from_maf.py` from GitHub to your current directory on lynx:
 
-		cp /cluster/projects/nn9458k/phylogenomics/week2/src/make_vcf_from_maf.py .
-		
-	or
-	
 		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/make_vcf_from_maf.py
 
 * Have a look at the help text of the script `make_vcf_from_maf.py`:
