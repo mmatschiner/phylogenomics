@@ -1,4 +1,4 @@
-# m_matschiner Wed May 19 18:38:31 CEST 2021
+# m_matschiner Sat Jan 24 01:13:03 CET 2026
 
 # This script reads a MAF file and generates a file in VCF
 # format.
