@@ -32,9 +32,7 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Divergence-Time Estimation with SNP Data](divergence_time_estimation_with_snp_data/README.md)<br>A tutorial on Bayesian divergence-time estimation with SNP data
 
-<!-- XXX This needs to wait until babette can be installed
 * [Maximum-Likelihood Inference of Species Networks](ml_inference_of_species_networks/README.md)<br>A tutorial on maximum-likelihood phylogenetic inference of species networks
-* -->
 
 <!-- XXX This may be optional XXX
 * [Bayesian Inference of Species Networks](bayesian_inference_of_species_networks/README.md)<br>A tutorial on Bayesian phylogenetic inference of species networks
@@ -44,13 +42,8 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 <!--
 * [Analysis of Introgression with Tree Topologies](analysis_of_introgression_with_tree_topologies/README.md)<br>A tutorial on the analysis of hybridization and introgression with tree topologies from across the genome.
+-->
 
-#### Friday
+## Day 4
 
 * [Inference from Simulated Data](inference_from_simulated_data/README.md)<br>A tutorial on coalescent simulations of genomic data and inferences from simulated data
-
-
-## Exam
-
-* The [Inference from Simulated Data](inference_from_simulated_data/README.md) on Friday of the second week will also serve as our examination for this course as different analyses throughout the course have to be recapitulated by the student using simulated data instead of empirical ones. Hence, the different causes are known. The final part will be that the students have to present their results at the end for passing the course.
--->

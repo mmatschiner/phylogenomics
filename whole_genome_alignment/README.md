@@ -515,7 +515,7 @@ Nevertheless, if all course participants would run Cactus in their working direc
 
 		sbatch convert_hal_to_maf.slurm
 
-	This format conversion will take longer than the first Cactus analysis, and should finish after about 2 hours. The whole-genome alignment in MAF format, in file `cichlids_chr5.maf`, will be used for phylogenomic analyses in the following tutorials.
+	This format conversion should finish after about an hour. The whole-genome alignment in MAF format, in file `cichlids_chr5.maf`, will be used for phylogenomic analyses in the following tutorials.
 
 
 <br><hr>

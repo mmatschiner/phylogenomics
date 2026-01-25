@@ -51,33 +51,25 @@ Species from this group have long been suggested to hybridize, based on mitochon
 <a name="requirements"></a>
 ## Requirements
 
-* **PhyloNet:** The [PhyloNet](https://bioinfocs.rice.edu/phylonet) program ([Than et al. 2008](https://doi.org/10.1186/1471-2105-9-322)) implements a range of methods for the inference of species trees and networks in a maximum-likelihood, Bayesian, or parsimony framework. PhyloNet is not available as a module on lynx, but as it is written in Java, it also does not need to be compiled and can simply be downloaded and then executed.
+* **PhyloNet:** The [PhyloNet](https://bioinfocs.rice.edu/phylonet) program ([Than et al. 2008](https://doi.org/10.1186/1471-2105-9-322)) implements a range of methods for the inference of species trees and networks in a maximum-likelihood, Bayesian, or parsimony framework. PhyloNet is not available as a module on lynx, but as it is written in Java, it also does not need to be compiled and can simply be downloaded and then executed. The steps required for this are described in the tutorial below.
 	
 * **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. Being a GUI program, FigTree can not be run on lynx, but needs to be installed and used on your local computer (see [Requirements](../requirements/README.md)). Input files for FigTree will thus need to be downloaded from lynx. 
 
-* **babette:** [babette](https://github.com/ropensci/babette) ([Bilderbeek and Etienne (2018)](https://doi.org/10.1111/2041-210X.13032)) is an R package that allows the generation of basic XML input files for BEAST2 through scripting instead of the BEAUti GUI. Installation of this R package is required on lynx. To install it there, use the following commands:
+* **babette:** [babette](https://github.com/ropensci/babette) ([Bilderbeek and Etienne (2018)](https://doi.org/10.1111/2041-210X.13032)) is an R package that allows the generation of basic XML input files for BEAST2 through scripting instead of the BEAUti GUI. Installation of this R package is required on lynx. To install both babette as well as the Rcpp package required by it there, use the following commands:
 
-		R
+		/opt/bin/R
+		install.packages("Rcpp", repos='http://cran.us.r-project.org')
 		install.packages("babette", repos='http://cran.us.r-project.org')
 		quit(save="no")
 
-	If asked whether you "would you like to use a personal library?", type "yes". This installation may take a couple of minutes. You may ignore the warning messages at the end of the installation process.<!-- XXX Really? XXX -->
-
-* **ape:** [ape](http://ape-package.ird.fr) ([Paradis 2004](https://doi.org/10.1093/bioinformatics/btg412)) is an R package that serves as a multitool for basic phylogenetic analyses and handling of phylogenetic trees. If you haven't yet installed it on lynx, use the following commands to do so:
-
-		R
-		install.packages("ape", repos='http://cran.us.r-project.org')
-		quit(save="no")
-
-	If asked whether you "would you like to use a personal library?", type "yes".
-
+	If asked whether you "would you like to use a personal library?", type "yes". These installation may take a couple of minutes.
 
 <a name="alignments"></a>
 ## Extraction of alignment blocks
 
 As the whole-genome alignment produced in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md) is stored in MAF format, and this format can not be read by programs for phylogenetic inference, we will need to first extract sets of alignment blocks in a format such as Nexus before these can used for the analyses in this tutorial. We are going to combine this alignment extraction with some basic filtering to extract alignment blocks only from the most reliably aligned regions of the whole-genome alignment.
 
-* Make sure that you have file `cichlids_chr5.maf` in your current tutorial working directory on lynx. If that is not the case, copy it from the directory in which you performed the Cactus analysis in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), or copy it from `/data/share/teaching/phylogenomics/data`:
+* Make sure that you have file `cichlids_chr5.maf` in your current tutorial working directory on lynx. If that is not the case, copy it from the directory in which you performed the Cactus analysis in tutorial [Whole-Genome Alignment](../whole_genome_alignment/README.md), or copy  a prepared version of it from `/data/share/teaching/phylogenomics/data`:
 
 		cp /data/share/teaching/phylogenomics/data/cichlids_chr5.maf .
 
@@ -128,6 +120,10 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 		# Make an xml file with babette.
 		create_beast2_input_file(fasta, xml, site_model = site_model, mcmc = mcmc)
 
+* Because the babette R package is slightly outdated, and the XML files produced by it are no longer compatible with the latest version of BEAST2, we need to download a conversion script to update the XML files produced by babette. Download this conversion script to your tutorial directory on lynx:
+
+		wget https://raw.githubusercontent.com/CompEvol/beast2/master/scripts/migrate.pl
+
 * Place the script named `convert_to_newick.r` in your current tutorial directory on lynx (this is one of the short scripts that was written in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md). If you should not have it, you can write it from scratch with the following content:
 
 		# Load the ape library.
@@ -166,11 +162,17 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 		# Get the command-line argument.
 		last_char=${1}
 
-		# Make an xml file for beast for every fasta file.
+		# Make an xml file for beast with babette for every fasta file.
 		for fasta in ${dir}/*${last_char}.fasta
 		do
 			xml=${fasta%.fasta}.xml
 			Rscript make_xml.r ${fasta} ${xml}
+		done
+		
+		# Convert all xml files produced by babette so that they are compatible with the latest beast version.
+		for xml in ${dir}/*${last_char}.xml
+		do
+			perl migrate.pl ${xml}
 		done
 	
 		# Analyze every xml file with beast.
@@ -195,7 +197,7 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 			Rscript convert_to_newick.r ${tre} ${nwk}
 		done
 
-	This script uses a quick-and-dirty way allowing parallelization: The line with `last_char=${1}` stores a variable that can be specified outside of this script, when calling it with `sbatch`. When we then call this script for example with `sbatch prepare_phylonet.slurm 0`, the variable "0" is passed into it and used to process only a subset of files. The line `for fasta in ${dir}/*${last_char}.fasta` for example then loops over all Fasta file in the alignment directory that end in `0.fasta`. We can therefore submit this script ten times with `sbatch prepare_phylonet.slurm 0` to `sbatch prepare_phylonet.slurm 9` to process all alignment files with ten parallel analyses. This will allow us to reduce the run time from over 2 hours to about 20 minutes. If you noticed that we here used an older BEAST2 module: This was necessary because babette is not yet made compatible with the latest version of BEAST2, v.2.7.
+	This script uses a quick-and-dirty way allowing parallelization: The line with `last_char=${1}` stores a variable that can be specified outside of this script, when calling it with `sbatch`. When we then call this script for example with `sbatch prepare_phylonet.slurm 0`, the variable "0" is passed into it and used to process only a subset of files. The line `for fasta in ${dir}/*${last_char}.fasta` for example then loops over all Fasta file in the alignment directory that end in `0.fasta`. We can therefore submit this script ten times with `sbatch prepare_phylonet.slurm 0` to `sbatch prepare_phylonet.slurm 9` to process all alignment files with ten parallel analyses. This will allow us to reduce the run time from over 2 hours to about 20 minutes.
 
 * Submit this new Slurm script ten times with `sbatch` using the following loop:
 
@@ -217,7 +219,7 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 	
 		ls alignments/*.fasta | wc -l
 
-* When the Slurm script has finished, make sure that the expected number of files with the ending `.nwk` has been written:
+* When the Slurm jobs have finished, make sure that the expected number of files with the ending `.nwk` has been written:
 
 		ls alignments/*.nwk | wc -l
 
@@ -300,6 +302,10 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 		# Run phylonet.
 		java -jar PhyloNet.jar phylonet.nex
 
+* Before we can run PhyloNet, the program still needs to be downloaded from its GitHub repository:
+
+		wget https://github.com/NakhlehLab/PhyloNet/releases/latest/download/PhyloNet.jar
+
 * Then, submit the script `run_phylonet.slurm` with `sbatch`:
 
 		sbatch run_phylonet.slurm
@@ -310,17 +316,10 @@ However, we obviously don't want to set up XML files with BEAUti for hundreds or
 
 		less run_phylonet.out
 	
-	You should see that the output lists results after 5 search iterations. This is the default number of searches for the maximum-likelihood species network that PhyloNet performs. In each case, the log-likelihood is reported on the same line as the network, such as in this example:
-	
-		Results after run #1
-		-2.5192768474651035: (((neobri:1.811811478E-4,(neooli:1.322393568E-4,neopul:1.322393568E-4)I6:4.8941791E-5)I4:1.345174406E-4,((neogra:7.89246471E-5)I5#H1:1.5784929419999997E-4::0.9828573145495751,(neomar:1.578492942E-4,I5#H1:7.89246471E-5::0.017142685450424855)I2:7.892464709999999E-5)I3:7.892464710000001E-5)I1:0.007725305613599999,orenil:0.008041004202)I0;
-
-	Unless the search for the maximum likelihood got stuck on local optima of the likelihood surface, all five log-likelihoods and networks should be identical.
-	
-	Following the results from the five search iterations, PhyloNet reports the network with the best log-likelihood (which again should be identical to at least one of the first five) on the line after "Inferred Network #1":
+	You should see a list of gene tree IDs, followed by the network with the best log-probability on the line after "Inferred Network #1":
 	
 		Inferred Network #1:
-		((neogra:3.724082696E-4,(neomar:3.156985884E-4,(neobri:1.811811478E-4,(neopul:1.322393568E-4,neooli:1.322393568E-4):4.8941791E-5):1.345174406E-4):5.67096812E-5):0.0076685959323999995,orenil:0.008041004202);
+		(orenil:0.0060747969823,(neomar:2.113888037E-4,(neopul:1.288168681E-4,((neooli:1.109179136E-4,neobri:1.109179136E-4):1.43505188E-5,neogra:1.252684324E-4):3.548435700000005E-6):8.257193559999999E-5):0.005863408178600001);
 
 	If PhyloNet in fact found support for a reticulation edge (we allowed maximally one), the network should contain two occurrences of the keyword "#H1", indicating the connection points of the reticulation edge. The specification is then not strictly in Newick format anymore, but instead in "extended Newick" format, which is described in [Cardona et al. (2008)](https://doi.org/10.1186/1471-2105-9-532). The format is extremely difficult to read by eye, and FigTree is also unable to read it. To visualize the network, other programs must be used. One tool capable of reading and visualizing extended Newick format is Dendroscope ([Huson et al. 2007](https://doi.org/10.1186/1471-2105-8-460)), but we'll here use an easier-to-use alternative, the browser-based tree viewer [IcyTree](https://icytree.org) ([Vaughan 2017](https://doi.org/10.1093/bioinformatics/btx155)).
 
@@ -405,8 +404,12 @@ If there is time left, you could repeat the PhyloNet analysis with gene trees wi
 
 		sbatch prepare_phylonet_nobl.slurm
 		
-	This script should take around 5 minutes to complete.
+	This script should complete within a few minutes.
 	
+* The tree files written by IQ-TREE should have the ending ".fasta.treefile". Make sure that you have the expected number of files with this ending:
+
+		ls alignments/*.treefile | wc -l
+
 * To prepare the new PhyloNet input file, first copy file `prepare_phylonet.sh` to a new file named `prepare_phylonet_nobl.sh`:
 
 		cp prepare_phylonet.sh prepare_phylonet_nobl.sh
@@ -469,7 +472,7 @@ If there is time left, you could repeat the PhyloNet analysis with gene trees wi
 
 		sbatch run_phylonet_nobl.slurm
 
-	This analysis might take longer than the previous one, perhaps over an hour. You could therefore move on to the next part of this tutorial and complete the next step afterwards.
+	This analysis might take longer than the previous one. You could therefore move on to the next part of this tutorial and complete the next step afterwards.
 
 * When this second PhyloNet analysis has finished, copy once again the string with the network from the screen output file `run_phylonet_nobl.out` to a new file on your local computer, save this file under any name, and load it from the IcyTree website.
 
@@ -528,41 +531,12 @@ Alternative hypothesis: "(orenil,((neomar,neogra),((neobri,X#H1),(neooli,(neopul
 
 		CalGTProb alt_hypothesis (all) -o;
 
-* Also copy the Slurm script `run_phylonet.slurm` to two new files named `run_phylonet_null.slurm` and `run_phylonet_alt.slurm`:
+* Analyze both of these new input files with PhyloNet. As these analyses are quite fast, we can run these without a Slurm script:
 
-		cp run_phylonet.slurm run_phylonet_null.slurm
-		cp run_phylonet.slurm run_phylonet_alt.slurm
-		
-* Open the Slurm script `run_phylonet_null.slurm` and replace "phylonet" with "phylonet_null" on lines 4 and 14, and the last line, so that the script has the following content:
-
-		#!/bin/bash
-
-		# Job name:
-		#SBATCH --job-name=phylonet_null
-		#
-		# Wall clock limit:
-		#SBATCH --time=3:00:00
-		#
-		# Processor and memory usage:
-		#SBATCH --ntasks=1
-		#SBATCH --mem-per-cpu=10G
-		#
-		# Output:
-		#SBATCH --output=run_phylonet_null.out
-
-		# Run phylonet.
 		java -jar PhyloNet.jar phylonet_null.nex
+		java -jar PhyloNet.jar phylonet_alt.nex
 
-* Do the same for file `run_phylonet_alt.slurm`, except that you replace the three occurrences of "phylonet" with "phylonet_alt".
-
-* Submit both Slurm script with `sbatch`:
-
-		sbatch run_phylonet_null.slurm
-		sbatch run_phylonet_alt.slurm
-
-	Both analyses should not take longer than a minute.
-
-* Compare the log-likelihood values reported in the two output files `run_phylonet_null.out` and `run_phylonet_alt.out`
+* Compare the log-likelihood values reported on the last line of the screen output in both cases.
 
 	**Question 3:** Is the likelihood difference sufficient to conclude that introgression occurred between *Neolamprologus brichardi* ("neobri") and *Neolamprologus pulcher* ("neopul")? [(see answer)](#q3)
 
@@ -593,4 +567,4 @@ Alternative hypothesis: "(orenil,((neomar,neogra),((neobri,X#H1),(neooli,(neopul
 
 <a name="q3"></a>
 
-* **Question 3:** This may be the case. In my analysis, the log-likelihood of the null hypothesis no introgression was -2137.9, while the log-likelihood of the alternative hypothesis, with introgression between *Neolamprologus brichardi* ("neobri") and *Neolamprologus pulcher* ("neopul"), was -2132.1. The likelihood difference was thus over 5.4 log units, which translates to a *p*-value below 0.001, allowing us to reject the null hypothesis without introgression. Note, however, that this comparison was made under the assumption that the true tree topology is the one that we specified, and if that should have been incorrect, the support for introgression from the likelihood comparison could be misleading.
+* **Question 3:** This may be the case. In my analysis, the log-likelihood of the null hypothesis no introgression was -2172.0, while the log-likelihood of the alternative hypothesis, with introgression between *Neolamprologus brichardi* ("neobri") and *Neolamprologus pulcher* ("neopul"), was -2161.2. The likelihood difference was thus over 10 log units, which translates to a *p*-value below 0.001, allowing us to reject the null hypothesis without introgression. Note, however, that this comparison was made under the assumption that the true tree topology is the one that we specified, and if that should have been incorrect, the support for introgression from the likelihood comparison could be misleading.
