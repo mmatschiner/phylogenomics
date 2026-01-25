@@ -24,6 +24,7 @@ All methods used for phylogenomic inference have assumptions, and these are ofte
 	* [Inference with PhyloNet](#phylonet)
 	<!--* [Inference with SpeciesNetwork](#speciesnetwork)-->
 	* [Inference with Dsuite](#dsuite)
+	* [Inference with other tools](#other)
 
 
 <a name="outline"></a>
@@ -267,7 +268,7 @@ This should specify a demographic model in which two species named "A" and "B" h
 
 	<!-- Run time: 4 s -->
 
-	Executing this script should output three tables that describe settings for two "epochs", two for an epoch that lasted from 0 to 1,000 generations in the past, and one table for a second epoch that lasted from 1,000 to infinite generations in the past (this view according to which more recent events are considered before more ancestral ones is common in the context of the coalescent, even though it is admittedly confusing at first). The first of the three tables tells us that between the present and ten generations in the past, two populations (recall that Msprime does not distinguish between species and populations) existed that were named "A" and "B" and both had a population size of 100, at both the beginng and the end of their existence; therefore the population growth rate is zero. In the last two columns of this table, pairwise migration rates are reported, which are currently all zero because we did not simulate any migration between the populations. The second table reports that there was a population split event at 1,000 generations ago, where an ancestral population named "pop_2" (the name is chosen by Msprime) split into the descending populations "A" and "B". And finally, the third table reports that between 1000 and infinite generations in the past (or put more simply: prior to 1,000 generations ago), a single population existed that was named "pop_2" and had an unchanged population size of 100. So all of this information from the `DemographyDebugger` confirms that the model has been set up as we intended.
+	Executing this script should output three tables that describe settings for two "epochs", two for an epoch that lasted from 0 to 1,000 generations in the past, and one table for a second epoch that lasted from 1,000 to infinite generations in the past (this view according to which more recent events are considered before more ancestral ones is common in the context of the coalescent, even though it is admittedly confusing at first). The first of the three tables tells us that between the present and ten generations in the past, two populations (recall that Msprime does not distinguish between species and populations) existed that were named "A" and "B" and both had a population size of 100, at both the beginng and the end of their existence; therefore the population growth rate is zero. In the last two columns of this table, pairwise migration rates are reported, which are currently all zero because we did not simulate any migration between the populations. The second table reports that there was a population split event at 1,000 generations ago, where an ancestral population named "pop\_2" (the name is chosen by Msprime) split into the descending populations "A" and "B". And finally, the third table reports that between 1000 and infinite generations in the past (or put more simply: prior to 1,000 generations ago), a single population existed that was named "pop\_2" and had an unchanged population size of 100. So all of this information from the `DemographyDebugger` confirms that the model has been set up as we intended.
 	
 * Next, try to simulate genomic data with this demographic model, using the following script (as you will see, this will produce an error message when you execute it):
 	
@@ -521,7 +522,7 @@ Reasonable parameters for our simulations may be a generation time of 3 years ([
 	
 * Also make sure to replace the name out the VCF output file specified in the script, `simulation_introgression1.vcf`, with `simulation_introgression2.vcf`.
 	
-* To execute `simulate_data_introgression2.py` on Saga, we once again need a Slurm script, which can be prepared by copying `simulate_data_introgression1.slurm` to a new file named `simulate_data_introgression2.slurm` and then changing the lines specifying the job name (line 4), the output (line 14), and the name of the script to be executed (the last line):
+* To execute `simulate_data_introgression2.py` on lynx, we once again need a Slurm script, which can be prepared by copying `simulate_data_introgression1.slurm` to a new file named `simulate_data_introgression2.slurm` and then changing the lines specifying the job name (line 4), the output (line 14), and the name of the script to be executed (the last line):
 
 		#!/bin/bash
 
@@ -663,7 +664,7 @@ There are a number of options to simulate changes in population sizes with Mspri
 
 <!-- Run time: 30-40 min -->
 
-* Wait for the four Slurm scripts to finish. Before you move on to the next steps, make sure that the four VCF files `simulation.vcf`, `simulation_introgression1.vcf`, `simulation_introgression2.vcf`, and `simulation_bottleneck.vcf` are present in your current directory on Saga:
+* Wait for the four Slurm scripts to finish. Before you move on to the next steps, make sure that the four VCF files `simulation.vcf`, `simulation_introgression1.vcf`, `simulation_introgression2.vcf`, and `simulation_bottleneck.vcf` are present in your current tutorial directory on lynx:
 
 		ls simulation*.vcf
 		
@@ -675,28 +676,27 @@ As some of the inference methods require sequence alignments rather than variant
 
 * Download the script `make_alignments_from_vcf.py`:
 
-		wget https://raw.githubusercontent.com/ForBioPhylogenomics/tutorials/main/week2_src/make_alignments_from_vcf.py
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/inference_from_simulated_data/scripts/make_alignments_from_vcf.py
 
 * Have a look at the help text of the script:
 
-		module load Python/3.8.2-GCCcore-9.3.0
 		python make_alignments_from_vcf.py -h
 		
 	You'll see that you can specify the number of alignments to extract from the VCF with option `-n` and the length of these alignments with option `-l`. Additionally, you can specify a path to which all alignments should be written with `-p`. The first and second arguments need to be the input file in VCF format and a prefix for all output files, respectively. The length of the chromosome should also be specified with option `-c`, because this information can not always be read from the VCF file. Note that in its current version, this script assumes that the VCF file contains data only for a single chromosome, which is the case in the VCF files generated with Msprime.
 
 * Extract sequence alignments from each of the VCF files generated with Msprime. Extracting a total number of 1,000 alignments that are each 2,500 bp long should produce a set of alignments that is suitable for all alignment-based inference methods, but you could vary these parameters to test the effects of having more or less and longer or shorter alignments:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty python make_alignments_from_vcf.py simulation.vcf simulation -n 1000 -c 5000000 -l 2500 -p simulation_alignments
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty python make_alignments_from_vcf.py simulation_introgression1.vcf simulation_introgression1 -n 1000 -c 5000000 -l 2500 -p simulation_introgression1_alignments
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty python make_alignments_from_vcf.py simulation_introgression2.vcf simulation_introgression2 -n 1000 -c 5000000 -l 2500 -p simulation_introgression2_alignments
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty python make_alignments_from_vcf.py simulation_bottleneck.vcf simulation_bottleneck -n 1000 -c 5000000 -l 2500 -p simulation_bottleneck_alignments
+		python make_alignments_from_vcf.py simulation.vcf simulation -n 1000 -c 5000000 -l 2500 -p simulation_alignments
+		python make_alignments_from_vcf.py simulation_introgression1.vcf simulation_introgression1 -n 1000 -c 5000000 -l 2500 -p simulation_introgression1_alignments
+		python make_alignments_from_vcf.py simulation_introgression2.vcf simulation_introgression2 -n 1000 -c 5000000 -l 2500 -p simulation_introgression2_alignments
+		python make_alignments_from_vcf.py simulation_bottleneck.vcf simulation_bottleneck -n 1000 -c 5000000 -l 2500 -p simulation_bottleneck_alignments
 
 	Perhaps more elegantly, the above commands could alternatively be written as a loop:
 	
 		for vcf in *.vcf
 		do
 			vcf_id=${vcf%.vcf}
-			srun --ntasks=1 --mem-per-cpu=1G --time=00:10:00 --account=nn9458k --pty python make_alignments_from_vcf.py ${vcf} ${vcf_id} -n 1000 -c 5000000 -l 2500 -p ${vcf_id}_alignments
+			python make_alignments_from_vcf.py ${vcf} ${vcf_id} -n 1000 -c 5000000 -l 2500 -p ${vcf_id}_alignments
 		done
 
 	You may notice that the file names of the alignments include the start and end position of each alignment on the chromosome, after the specified prefix.
@@ -722,9 +722,9 @@ The IDs used in the alignment files are similar to those used in the VCF files, 
 
 You should now have simulated genomic data in the form of four files in VCF format (`simulation.vcf`, `simulation_introgression1.vcf`, `simulation_introgression2.vcf`, and `simulation_bottleneck.vcf`) as well as four sets of files with alignments in Phylip format (in directories `simulation_alignments`, `simulation_introgression1_alignments`, `simulation_introgression2_alignments`, and `simulation_bottleneck_alignments`).
 
-These files can now be used for inference with ASTRAL, StarBeast3, SVDQuartets, SNAPP, SNAPPER, PhyloNet<!--, SpeciesNetwork-->, and Dsuite, to find out how these methods are affected by model violations like within-locus recombination, introgression, and population-size variation. The inference should largely follow the instructions given in other tutorials, either using the files in VCF format or the sets of alignments as input, depending on the type of input that is required for the inference methods.
+These files can now be used for inference with ASTRAL, StarBeast3, SVDQuartets, SNAPP<!--, SNAPPER-->, PhyloNet<!--, SpeciesNetwork-->, and Dsuite, to find out how these methods are affected by model violations like within-locus recombination, introgression, and population-size variation. The inference should largely follow the instructions given in other tutorials, either using the files in VCF format or the sets of alignments as input, depending on the type of input that is required for the inference methods.
 
-If you should not have enough time to test all of these inference methods, I suggest that phylogenetic inference should be tested with at least one method, in addition to testing inference of introgression with Dsuite. On the other hand, if there is enough time to test different methods for phylogenetic inference, it would make sense to start with the computationally more demanding ones (StarBeast3, SNAPP, SNAPPER, PhyloNet<!--, SpeciesNetwork-->) before setting up the faster ones (ASTRAL, SVDQuartets). For each inference method, you could focus on one or two of the simulated datasets (either with or without introgression, and with or without bottleneck) – as long as different course participants select different datasets to analyze, a comparison of the results will allow us to assess the impact of the model violations on each inference method.
+If you should not have enough time to test all of these inference methods, I suggest that phylogenetic inference should be tested with at least one method, in addition to testing inference of introgression with Dsuite. On the other hand, if there is enough time to test different methods for phylogenetic inference, it would make sense to start with the computationally more demanding ones (StarBeast3, SNAPP,<!-- SNAPPER-->, PhyloNet<!--, SpeciesNetwork-->) before setting up the faster ones (ASTRAL, SVDQuartets). For each inference method, you could focus on one or two of the simulated datasets (either with or without introgression, and with or without bottleneck) – as long as different course participants select different datasets to analyze, a comparison of the results will allow us to assess the impact of the model violations on each inference method.
 
 
 <a name="astral"></a>
@@ -732,24 +732,51 @@ If you should not have enough time to test all of these inference methods, I sug
 
 * Follow the instructions given in tutorial [Maximum-Likelihood Species-Tree Inference](../ml_species_tree_inference/README.md) to first infer trees for all alignments with IQ-TREE and then use these trees as input for ASTRAL, with the following modifications:
 
-	* In the Slurm script to run IQ-TREE, specify a maximum run time of 20 minutes (`--time=0:20:00`), a maximum of 1 GB of memory (`--mem-per-cpu=1G`), and ask for a single thread (`--ntasks=1`).
+	* To run IQ-TREE for all 1,000 extracted alignments, writing a Slurm script would be appropriate. This could have a content similar to the following:
 
-	* Instead of testing for the best substitution model with IQ-TREE, use the HKY model (`-m HKY`), given that this model was also used to generate the data.
+			#!/bin/bash
 
-	* Bootstrapping is not required.
+			# Job name:
+			#SBATCH --job-name=iqtree
+			#
+			# Wall clock limit:
+			#SBATCH --time=1:00:00
+			#
+			# Processor and memory usage:
+			#SBATCH --ntasks=1
+			#SBATCH --mem-per-cpu=1G
+			#
+			# Output:
+			#SBATCH --output=run_iqtree.out
 
-	* Because unlike in tutorial [Maximum-Likelihood Species-Tree Inference](../ml_species_tree_inference/README.md), all trees now contain two tips for the same species, a file with a table connecting species names and individual IDs needs to be prepared and provided to ASTRAL with option `-a`. This file should have the following format and content, and could be named `astral_table.txt`:
+			# Run iq-tree.
+			for phy in simulation_alignments/*.phy
+			do
+				iqtree3 -s ${phy} -m HKY -o tsk_5_1,tsk_5_2
+			done
+
+	Instead of testing for the best substitution model with IQ-TREE, the above script uses the HKY model (`-m HKY`), given that this model was also used to generate the data. to save time, bootstrapping could be excluded, therefore option `-B` is not used.
+
+	* Because unlike in tutorial [Maximum-Likelihood Species-Tree Inference](../ml_species_tree_inference/README.md), all trees now contain two tips for the same species, a file with a table connecting species names and individual IDs needs to be prepared and provided to wASTRAL with option `-a`. This file should have the following format and content, and could be named `astral_table.txt`:
 	
-			neomar:tsk_0_1,tsk_0_2
-			neogra:tsk_1_1,tsk_1_2
-			neobri:tsk_2_1,tsk_2_2
-			neooli:tsk_3_1,tsk_3_2
-			neopul:tsk_4_1,tsk_4_2
-			metzeb:tsk_5_1,tsk_5_2
+			tsk_0_1	neomar
+			tsk_0_2	neomar
+			tsk_1_1	neogra
+			tsk_1_2	neogra
+			tsk_2_1	neobri
+			tsk_2_2	neobri
+			tsk_3_1	neooli
+			tsk_3_2	neooli
+			tsk_4_1	neopul
+			tsk_4_2	neopul
+			tsk_5_1	metzeb
+			tsk_5_2	metzeb
 
-	* Run ASTRAL with `srun`, using a command such as this one (replace "XXX.trees" with the actual name of the file containing the trees):
+	* Run wASTRAL with a command such as this one (use `--mode 3` to weigh only by branch lengths if no bootstrap values are available):
 	
-			srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty java -jar Astral/astral.5.7.7.jar -i XXX.trees -a astral_table.txt -o simulation_astral.tre
+			wastral --mode 3 -a astral_table.txt -o wastral.tre ml_best.trees
+
+	* If you ran IQ-TREE without bootstrapping, but you do have time left now, you could repeat the analysis with bootstrapping, which would allow you to weigh by node support (`--mode 2`) or by both branch length and node support (`--mode 1`) with wASTRAL.
 
 
 <a name="starbeast3"></a>
@@ -759,9 +786,6 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 * To convert a set of 50 alignments into Nexus format, you could write a script named `convert_to_nexus.sh` with the following commands (if you want to use another alignment set, simply replace `simulation_alignments` with `simulation_introgression1_alignments`, `simulation_introgression2_alignments`, or `simulation_bottleneck`):
 
-		# Load the python module.
-		module load Python/3.8.2-GCCcore-9.3.0
-		
 		for phy in `ls simulation_alignments/*.phy | head -n 50`
 		do
 			nex=${phy%.phy}.nex
@@ -769,19 +793,19 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 		done
 
 
-* Before executing this script, you will need to download the conversion script `convert.py`:
+* Before executing this script, you may need to download the conversion script `convert.py`:
 	
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/convert.py
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/inference_from_simulated_data/scripts/convert.py
 	
 * Then you can use this command to execute the script:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:02:00 --account=nn9458k --pty bash convert_to_nexus.sh
+		bash convert_to_nexus.sh
 
 	This should have produced 50 files in Nexus format in directory `simulation_alignments`, which you can verify with `ls simulation_alignments/*.nex | wc -l`.
 
-* Download these alignment files in Nexus format to your own computer, e.g. using `scp`. To download only the files in Nexus format from `simulation_alignments`, you could use a command similar to this one (on your own computer; replace "XXX" with your username and "YYY" with the path to your alignment directory on Saga):
+* Download these alignment files in Nexus format to your own computer, e.g. using `scp`. To download only the files in Nexus format from `simulation_alignments`, you could use a command similar to this one (on your own computer; replace "XXX" with your username and "YYY" with the path to your alignment directory on lynx):
 
-		scp XXX@saga.sigma2.no:YYY/simulation_alignments/*_red.nex .
+		scp XXX@10.153.166.2:YYY/simulation_alignments/*_red.nex .
 
 * Follow the instructions given in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) to set up an XML file for StarBeast3, with the following modifications:
 
@@ -815,19 +839,8 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 			#SBATCH --ntasks=1
 			#SBATCH --mem-per-cpu=1G
 			#
-			# Accounting:
-			#SBATCH --account=nn9458k
-			#
 			# Output:
 			#SBATCH --output=run_simulation_starbeast.out
-
-			# Set up job environment.
-			set -o errexit  # Exit the script on any error
-			set -o nounset  # Treat any unset variables as an error
-			module --quiet purge  # Reset the modules to the system default
-
-			# Load the python module.
-			module load Beast/2.7.0-GCC-11.3.0-CUDA-11.7.0
 
 			# Run starbeast3.
 			beast simulation_starbeast.xml
@@ -842,9 +855,7 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 	* No individuals need to be filtered with `bcftools`, but the `prune` function of `bcftools` should again be used to ensure a minimum distance of 100 bp between SNPs, with commands similar to the following:
 
-			module purge
-			module load BCFtools/1.12-GCC-10.2.0
-			srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty bcftools +prune -w 100bp -n 1 -N 1st -o simulation_pruned.vcf simulation.vcf
+			bcftools +prune -w 100bp -n 1 -N 1st -o simulation_pruned.vcf simulation.vcf
 
 	* Run only what is called the "second analysis with SVDQuartets" in that tutorial, in which an assignment between individuals and species is made.
 
@@ -874,8 +885,7 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 	* To generate an input file for SNAPP with `snapp_prep.rb`, use commands like the following:
 
-			module load Ruby/2.7.2-GCCcore-10.2.0
-			srun --ntasks=1 --mem-per-cpu=1G --time=00:01:00 --account=nn9458k --pty ruby snapp_prep.rb -v simulation.vcf -t individuals.txt -c constraint.txt -q 1000 -m 1000 -l 500000 -o simulation_snapp -x simulation_snapp.xml
+			ruby snapp_prep.rb -v simulation.vcf -t individuals.txt -c constraint.txt -q 1000 -m 1000 -l 500000 -o simulation_snapp -x simulation_snapp.xml
 
 	* Adjust the job name, the name of the output file, and the name of the input file for SNAPP in the Slurm script.
 
@@ -893,9 +903,6 @@ As in the [Inference with StarBeast3](#starbeast3), the use of a full set of 1,0
 
 * To convert a set of 100 alignments into Fasta format, and to include only one sequence from each ingroup species, you could write a script named `convert_to_fasta.sh` with the following commands (if you want to use another alignment set, simply replace `simulation_alignments` with `simulation_introgression1_alignments`, `simulation_introgression2_alignments`, or `simulation_bottleneck`). For convenience, the commands below include a step to replace the individual IDs ("tsk\_0\_1", "tsk\_1\_1", etc.) with the corresponding species IDs ("neomar", "neogra", etc.):
 
-		# Load the python module.
-		module load Python/3.8.2-GCCcore-9.3.0
-		
 		for phy in `ls simulation_alignments/*.phy | head -n 100`
 		do
 			fasta=${phy%.phy}.fasta
@@ -907,11 +914,11 @@ As in the [Inference with StarBeast3](#starbeast3), the use of a full set of 1,0
 
 * Before executing this script, make sure that you have the file `convert.py` in your current directory (e.g. with `ls convert.py`). If not, download it from GitHub:
 	
-		wget https://raw.githubusercontent.com/mmatschiner/anguilla/master/radseq/src/convert.py
+		wget https://raw.githubusercontent.com/mmatschiner/phylogenomics/refs/heads/main/inference_from_simulated_data/scripts/convert.py
 	
 * Then use this command to execute the script:
 
-		srun --ntasks=1 --mem-per-cpu=1G --time=00:02:00 --account=nn9458k --pty bash convert_to_fasta.sh
+		bash convert_to_fasta.sh
 
 	This should produce 100 files in Fasta format in the alignment directory (e.g. in `simulation_alignments`).
 	
@@ -930,9 +937,6 @@ As for the [Inference with StarBeast3](#starbeast3), we will need to use a subse
 
 * To convert a set of 50 alignments into Nexus format, and remove both the outgroup and one sequence per species, you could write a script named `convert_to_nexus_and_reduce.sh` with the following commands (if you want to use another alignment set, simply replace `simulation_alignments` with `simulation_introgression1_alignments`, `simulation_introgression2_alignments`, or `simulation_bottleneck`):
 
-		# Load the python module.
-		module load Python/3.8.2-GCCcore-9.3.0
-				
 		for phy in `ls simulation_alignments/*.phy | head -n 50`
 		do
 			nex=${phy%.phy}_red.nex
@@ -949,9 +953,9 @@ As for the [Inference with StarBeast3](#starbeast3), we will need to use a subse
 
 	This should have produced 50 files in Nexus format in directory `simulation_alignments`, which you can verify with `ls simulation_alignments/*.nex | wc -l`.
 
-* Download these alignment files in Nexus format to your local computer, e.g. using `scp`. To download only the files in Nexus format from `simulation_alignments`, you could use a command similar to this one (on your local computer; replace "XXX" with your username and "YYY" with the path to your alignment directory on Saga):
+* Download these alignment files in Nexus format to your local computer, e.g. using `scp`. To download only the files in Nexus format from `simulation_alignments`, you could use a command similar to this one (on your local computer; replace "XXX" with your username and "YYY" with the path to your alignment directory on lynx):
 
-		scp XXX@saga.sigma2.no:YYY/simulation_alignments/*_red.nex .
+		scp XXX@10.153.166.2:YYY/simulation_alignments/*_red.nex .
 
 * Follow the instructions given in tutorial [Bayesian Inference of Species Networks](../bayesian_inference_of_species_networks/README.md) to infer species networks with SpeciesNetwork, with the following modifications:
 
@@ -991,6 +995,12 @@ As for the [Inference with StarBeast3](#starbeast3), we will need to use a subse
 			neobri	neooli	neomar
 
 	* Use a combination of window size and increments that results in about 50 to 200 windows. You could first try `-w 500,100` for this.
+
+
+<a name="other"></a>
+### Inference with other tools
+
+If time permits, you could also try to perform phylogentic inference from the simulated datasets with IQ-TREE (see tutorial [Maximum-Likelihood Species-Tree Inference](../ml_species_tree_inference/README.md)) or WASTER  (see tutorial [Whole Genome Alignment](../whole_genome_alignment/README.md)) after concatenation of the extracted alignments.
 
 
 
