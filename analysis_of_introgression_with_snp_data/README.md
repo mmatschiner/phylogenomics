@@ -551,8 +551,6 @@ In this part of the tutorial, I am going to demonstrate how SNPs can be extracte
 
 		python make_vcf_from_maf.py cichlids_chr5.maf cichlids_chr5.vcf -l 500 -c 0.8 -x 6
 
-	This may run for a few minutes.
-
 	**Question 10:** How many SNPs are extracted from the whole-genome alignment? [(see answer)](#q10)
 	
 * Have a look at the VCF file `cichlids_chr5.vcf` written by the script.
@@ -569,8 +567,6 @@ To analyze the new VCF file with Dsuite, we still need a file with a table assig
 		neobri	neobri
 		neooli	neooli
 		neopul	neopul
-
-	As with the first such file before, make sure that the file is in fact tab- and not space-separated.
 
 * Then, run Dsuite's `Dtrios` command to analyze the VCF file `cichlids_chr5.vcf`:
 
@@ -679,7 +675,7 @@ To analyze the new VCF file with Dsuite, we still need a file with a table assig
 
 <a name="q10"></a>
 
-* **Question 10:** The screen output of the script `make_vcf_from_maf.py` should report that around 650,000 SNPs were extracted from the whole-genome alignment and written to file `cichlids_chr5.vcf`.
+* **Question 10:** The screen output of the script `make_vcf_from_maf.py` should report that around 600,000 SNPs were extracted from the whole-genome alignment and written to file `cichlids_chr5.vcf`.
 
 
 <a name="q11"></a>
