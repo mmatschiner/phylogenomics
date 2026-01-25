@@ -24,9 +24,7 @@ A collection of tutorials covered in the LMU Munich Phylogenomics course.
 
 * [Bayesian Species-Tree Inference](bayesian_species_tree_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated species trees
 
-<!-- XXX This needs to wait until I know how to use conda_share_init inside Slurm XXX
 * [Whole-Genome Alignment](whole_genome_alignment/README.md)<br>A tutorial on repeat masking and whole-genome alignment of assembled genomes
--->
 
 ## Day 3
 
