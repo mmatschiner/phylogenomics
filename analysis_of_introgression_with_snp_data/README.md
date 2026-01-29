@@ -149,9 +149,9 @@ In this part of the tutorial, we are going to calculate *D*-statistics with Dsui
 		individuals_dsuite_BBAA.txt
 		individuals_dsuite_Dmin.txt
 		individuals_dsuite_combine.txt
-		individuals_dsuite_stderr.txt
+		individuals_dsuite_combine_stderr.txt
 
-	The two files `individuals_dsuite_combine.txt` and `individuals_dsuite_stderr.txt` are only used when Dsuite combines the results of multiple analyses and can be ignored.
+	The two files `individuals_dsuite_combine.txt` and `individuals_dsuite_combine_stderr.txt` are only used when Dsuite combines the results of multiple analyses and can be ignored.
 
 * Have a look at the content of file `individuals_dsuite_BBAA.txt`, for example using the `less` command. This should show the following content (values might differ slightly):<p align="center"><img src="img/terminal1.png" alt="Terminal window" width="700"></p>
 
