@@ -192,9 +192,9 @@ One of the most common approaches for repeat masking is to create a species spec
 
 		bash run_red.sh
 
-	This should take between 30 and 90 minutes to finish. But since the next steps do not use the softmasked assemblies produced by Red, you can already continue with the tutorial. Nevertheless, if you should be unable to run Red for some reason, you can also obtain prepared softmasked assemblies from `/cluster/projects/nn9458k/phylogenomics/cichlid_assemblies_masked`:
+	This should take between 30 and 90 minutes to finish. But since the next steps do not use the softmasked assemblies produced by Red, you can already continue with the tutorial. Nevertheless, if you should be unable to run Red for some reason, you can also obtain prepared softmasked assemblies from `/data/share/teaching/phylogenomics/data/cichlid_assemblies_masked`:
 
-		cp -r /cluster/projects/nn9458k/phylogenomics/cichlid_assemblies_masked .
+		cp -r /data/share/teaching/phylogenomics/data/cichlid_assemblies_masked .
 
 
 <a name="subset"></a>
