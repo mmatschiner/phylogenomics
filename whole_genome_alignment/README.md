@@ -403,8 +403,9 @@ With the softmasked assemblies (subset to data from a single chromosome) and the
 		cat waster.tre | sed 's/)[0-9]*:/)/g' > cactus_setup.txt
 		for fasta in cichlid_assemblies_masked_chr5/*.softmasked.chr5.fasta
 		do
+			path_fasta=`readlink -f ${fasta}`
 			species_id=`basename ${fasta%.softmasked.chr5.fasta}`
-			echo "${species_id} /data/${fasta}" >> cactus_setup.txt
+			echo "${species_id} ${path_fasta}" >> cactus_setup.txt
 		done
 
 	The reason why we're using `sed 's/)[0-9]*:/)/g'` in the command above is that node support values should be removed from the guide tree string.
