@@ -805,7 +805,7 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 * Download these alignment files in Nexus format to your own computer, e.g. using `scp`. To download only the files in Nexus format from `simulation_alignments`, you could use a command similar to this one (on your own computer; replace "XXX" with your username and "YYY" with the path to your alignment directory on lynx):
 
-		scp XXX@10.153.166.2:YYY/simulation_alignments/*_red.nex .
+		scp XXX@10.153.166.2:YYY/simulation_alignments/"*.nex" .
 
 * Follow the instructions given in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) to set up an XML file for StarBeast3, with the following modifications:
 
