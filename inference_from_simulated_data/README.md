@@ -813,9 +813,9 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 	* Assign the sequences with IDs "tsk\_0\_1", "tsk\_0\_2", "tsk\_1\_1", etc. to the species IDs "neomar", "neogra", etc. according to the table given above (BEAUti tab "Taxon sets").
 
-	* Center the prior for the population size at 0.279, because this value will correspond to the true population size used in the simulations (9.3 &times; 10<sup>4</sup>) when scaled by the number of generations per time unit (333,333).
-
 	* As the substitution model, specify the HKY model without among-site rate heterogeneity (simply leave the Gamma category count at "0") to match the model used for the simulations (BEAUti tab "Site Model").
+
+	* Center the prior for the population size at 0.279, because this value will correspond to the true population size used in the simulations (9.3 &times; 10<sup>4</sup>) when scaled by the number of generations per time unit (333,333).
 
 	* To simplify the StarBeast3 analysis, you could also specify equal site frequencies (select "All Equal" from the drop-down menu next to "Frequencies"; BEAUti tab "Site Model").
 
@@ -843,7 +843,7 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 			#SBATCH --output=run_simulation_starbeast.out
 
 			# Run starbeast3.
-			beast simulation_starbeast.xml
+			beast2 simulation_starbeast.xml
 
 	<!-- Run time: 50 minutes -->
 
