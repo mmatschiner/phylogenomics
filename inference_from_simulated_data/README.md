@@ -977,7 +977,7 @@ As for the [Inference with StarBeast3](#starbeast3), we will need to use a subse
 
 	* The file `snapp_w_neocan.nwk` does not need to be prepared; instead of this file, use a file that contains the true tree used in the simulations with Msprime: "(((neomar:1.6,neogra:1.6):0.3,(neobri:1.2,(neooli:0.5,neopul:0.5):0.7):0.7):7.6,metzeb:9.5)". This file should thus have the following content:
 
-			(((neomar:1.6,neogra:1.6):0.3,(neobri:1.2,(neooli:0.5,neopul:0.5):0.7):0.7):7.6,metzeb:9.5)
+			(((neomar:1.6,neogra:1.6):0.3,(neobri:1.2,(neooli:0.5,neopul:0.5):0.7):0.7):7.6,metzeb:9.5);
 
 	* Instead of the file `individuals_dsuite.txt`, write and use a file that has the following content (as in tutorial [Analysis of Introgression with SNP Data](../analysis_of_introgression_with_snp_data/README.md), make sure that the columns are separated by actual tabs and not other types of whitespace):
 
