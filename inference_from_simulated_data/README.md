@@ -819,7 +819,7 @@ As an analysis of a complete set of 1,000 alignments would be too computationall
 
 	* To simplify the StarBeast3 analysis, you could also specify equal site frequencies (select "All Equal" from the drop-down menu next to "Frequencies"; BEAUti tab "Site Model").
 
-	* To time-calibrate the species tree, use a lognormal age constraint with a mean age of 9.5 Ma (the true age used in the simulations) and a standard deviation of 0.1 (make sure to set the tick for "Mean in Real Space"; BEAUti tab "Priors").
+	* To time-calibrate the species tree, use a lognormal age constraint with a mean age of 9.5 Ma (the true age used in the simulations), a standard deviation of 0.1, and an offset of 0 (make sure to set the tick for "Mean in Real Space"; BEAUti tab "Priors").
 
 	* Use a chain length of 50 million and all log frequencies to 25,000 (BEAUti tab "MCMC").
 
