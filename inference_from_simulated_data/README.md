@@ -599,7 +599,7 @@ There are a number of options to simulate changes in population sizes with Mspri
 
 	The `DemographyDebugger` output should now include the bottleck as an event at generation 5e+05.
 	
-* Complete the script `simulate_data_bottleneck.py`, as before with script `simulate_data_introgression1.py` by re-adding the commands for the simulation of ancestry and mutations, and for writing output in VCF format. The `DemographyDebugger` can be removed again, and `simulate_data_bottleneck.vcf` should be chosen for the VCF output file to avoid overwriting of the previously written VCF file:
+* Complete the script `simulate_data_bottleneck.py`, as before with script `simulate_data_introgression1.py` by re-adding the commands for the simulation of ancestry and mutations, and for writing output in VCF format. The `DemographyDebugger` can be removed again, and `simulation_bottleneck.vcf` should be chosen for the VCF output file to avoid overwriting of the previously written VCF file:
 	
 		# Load msprime.
 		import msprime
