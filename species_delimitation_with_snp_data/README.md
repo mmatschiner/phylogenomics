@@ -65,7 +65,7 @@ The SNP data used in this tutorial are the filtered dataset used for species-tre
 
 * **SNAPP:** The [SNAPP method](https://www.beast2.org/snapp/) ([Bryant et al. 2012](https://doi.org/10.1093/molbev/mss086)) add-on package for BEAST2 implements a version of the multi-species coalescent model that mathematically integrates over all possible trees at biallelic loci, and is therefore particularly well suited for SNP data. SNAPP can be installed through the BEAST2 Package Manager; however, since BEAUti will not be used to prepare SNAPP input files, the SNAPP package does not need to be installed on local computers, but only on lynx, as described in the tutorial.
 
-* **MODEL_SELECTION:** The MODEL_SELECTION add-on package for BEAST2 implements two approaches to estimate marginal likelihoods, called Path Sampling and Stepping Stone. This  package does not need to be installed on local computers, but only on lynx, as described in the tutorial.
+* **MODEL\_SELECTION:** The MODEL\_SELECTION add-on package for BEAST2 implements two approaches to estimate marginal likelihoods, called Path Sampling and Stepping Stone. This  package does not need to be installed on local computers, but only on lynx, as described in the tutorial.
 
 
 <a name="snapp"></a>
@@ -134,7 +134,7 @@ the linear relations between cheek depth and head length and between body depth 
 
 		packagemanager -add SNAPP
 		
-* In the same way, make sure that the add-on package "MODEL_SELECTION" is installed. This package is needed to perform the Stepping Stone approach. If it is not yet installed and available for you, you can change that with the following command:
+* In the same way, make sure that the add-on package "MODEL\_SELECTION" is installed. This package is needed to perform the Stepping Stone approach. If it is not yet installed and available for you, you can change that with the following command:
 
 		packagemanager -add MODEL_SELECTION
 
@@ -199,3 +199,114 @@ We now need to set up scripts to run SNAPP with each of the 16 files named `beas
 * Launch the second script, which in turn triggers the Slurm script:
 
 		bash run_snapp.sh
+		
+	This should submit 16 jobs that will run in parallel for around half an hour. Each of these 16 jobs will write a number of files to the respective steps directory, including `BFD.log`, `BFD.trees`, and `likelihood.log`.
+
+In contrast to other SNAPP or BEAST2 analyses, we are now not particularly interested in the inferred phylogenies or parameter values. The only estimate of interest is the marginal likelihood. This estimate, however, is not included in any of the individiual output files. Instead, the estimate can be obtained through comparison of output files across the 16 steps. Specifically, we need to compare the content of the files named `likelihood.log`. This comparison is done with yet another tool from the BEAST2 package, namely the program `applauncher`, which can be found in the BEAST2 program directory.
+
+* To find this program directory, type `which beast2`. This should point you to `/opt/bin/beast2`.
+
+* To get more information, type `ls -l /opt/bin/beast2`. This should show that `/opt/bin/beast2` links to `../programs/beast-2.7/bin/beast`. The absolute path of the BEAST2 installation is therefore `/opt/programs/beast-2.7/bin/`.
+
+* Have a look at the content of that directory:
+
+		ls -l /opt/programs/beast-2.7/bin
+
+	This should show that besides `beast`, a number of other executable files are included in that directory, one for each of the different tools of the BEAST2 suite of programs. The one that we now need is `applauncher`.
+	
+* Try to run `applauncher` by specifying its full path and the option `-help` to see its help text:
+
+		/opt/programs/beast-2.7/bin/applauncher -help
+		
+	This should show that you can list certain functions with the option `-list`.
+	
+* Try this option instead:
+
+		/opt/programs/beast-2.7/bin/applauncher -list
+		
+	The output should include a table that lists packages and "Classes", along with descriptions. The one that we're interested in is the class "PathSampleAnalyser" that apparently comes from the "MODEL\_SELECTION" add-on package.
+	
+* Launch the "PathSampleAnalyser" class with `applauncher`, followed by `-help` to see its help text.
+
+		/opt/programs/beast-2.7/bin/applauncher PathSampleAnalyser -help
+		
+	You should see some options that look similar to those that were written with `bfd_prep.rb` to the XML file, including `-rootdir`, `-alpha`, `-nrOfSteps`, and `-burnInPercentage`.
+	
+* Launch "PathSampleAnalyser" again, this time with specifications that correspond to those that you used to write the XML file. The "rootdir" corresponds to the directory `bfd_steps`, `nrOfSteps` is 16 as the number of steps specified with `bfd_prep.rb`, and `burnInPercentage` is 10%, according to the burnin percentage specified with `bfd_prep.rb`. So launch "PathSampleAnalyser" with the following command:
+
+		/opt/programs/beast-2.7/bin/applauncher PathSampleAnalyser -rootdir bfd_steps -nrOfSteps 16 -burnInPercentage 10
+		
+	This analysis should finish within a few seconds, and produce a table at the end of the output, with values for theta, likelihood, contribution, and ESS for each of the 16 steps.
+	
+* Have a look at the ESS values in the last column of the table. **Question 1:** Given what we know about ESS values from other tutorials, what do these values imply? [(see answer)](#q1)
+
+* Below the table should be a line starting with "marginal L estimate", followed by a number. This number is the marginal likelihood (actually the logarithm of it) that we need to keep, so that we can compare it to the marginal likelihood of another model.
+
+* Repeat the entire workflow (`bfd_prep.rb`, SNAPP, and "PathSampleAnalyser") with the same VCF file but a different table file (again to be specified with the `bfd_prep.rb` option `--table`). In contrast to the first table that we used (the one that we had written to file `individuals.txt`), specify the same "species" name for all four indiviuals of the taxa *Neolamprologus chitamwebwai* ("neochi") and *Neolamprologus walteri* ("neowal"). You could for example use the "species" name "neochiwal" for all four individuals, and you could call the new file `individuals_alt.txt`. It would then have the following content:
+
+		species	individual
+		neochiwal	KHA7
+		neochiwal	KHA9
+		neochiwal	KFD2
+		neochiwal	KFD4
+		neobri	JUH9
+		neobri	JUI1
+		altfas	AUE7
+		altfas	AXD5
+		astbur	IZA1
+		astbur	IZC5
+
+	When you repeat the workflow with this new table file, make sure not to overwrite the previously written directories, e.g., by now using `bfd_alt_steps` instead of `bfd_steps` as the directory name.
+	
+* When the workflow has completed again and you have obtained a new value for the marginal likelihood, compare this new value to the previous one. **Question 2:** If the new value for the marginal likelihood is larger than the previous one, what does that mean? [(see answer)](#q2)
+
+* After the workflow has completed with both table files and therefore for both of the two competing models of species delimitation, you could calculate the test statistic supporting one or the other of the two models. However, keep in mind that the estimates for the marginal likelihood were rough, given that the ESS values for the likelihood were probably all below 100. Thus, resume all analyses to extend the MCMC chains to increase the ESS values (ideally until they are all above 200). Test whether that affects the test statistic and the inferred support for the two models. To be able to resume the SNAPP analyses, we need to modify the script `run_snapp.slurm` as follows:
+
+		* Write a Slurm script named `run_snapp.slurm` with the following content to prepare the SNAPP analysis:
+
+		#!/bin/bash
+
+		# Job name:
+		#SBATCH --job-name=snapp
+		#
+		# Wall clock limit:
+		#SBATCH --time=6:00:00
+		#
+		# Processor and memory usage:
+		#SBATCH --ntasks=1
+		#SBATCH --cpus-per-task=1
+		#SBATCH --mem-per-cpu=1G
+		
+		# Run snapp.
+		if [ -f likelihood.log ]
+		then
+			beast2 -resume ${xml}
+		else
+			beast2 ${xml}
+		fi
+
+* Then, remove all older versions of `run_snapp.slurm` from the step directories:
+
+		rm -f bfd_steps/step*/run_snapp.slurm
+		rm -f bfd_alt_steps/step*/run_snapp.slurm
+
+	The latter command assumes that you named the directory for the alternative model `bfd_alt_steps`. Adjust this command if you used a different name.
+	
+* Check the ESS values again, and recalculate the test statistic.
+
+
+
+<br><hr>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+## Answers
+
+<a name="q1"></a>
+
+* **Question 1:** You may remember from other tutorials that "ESS" values are effective sample sizes for any model component, estimated during the MCMC. As a rule of thumb, ESS values above 200 indicate reliable estimates. The ESS values in this case, however, are likely to be much smaller, probably below 100. This means that in principle, the SNAPP analyses should be resumed, to add further iterations to the MCMC chains.
+
+
+<a name="q2"></a>
+
+* **Question 2:** If the new marginal likelihood is larger (which probably means less negative, as both values are likely negative), that implies that the second model is better supported than the first model, and therefore that the two taxa *Neolamprologus chitamwebwai* ("neochi") and *Neolamprologus walteri* ("neowal") should better be considered one and the same species. In contrast, if the new marginal likelihood value is smaller, that would support separate species status for both taxa. Following [Kass and Raftery (1995)](https://doi.org/10.1080/01621459.1995.10476572) and [Leaché et al. (2014)](https://doi.org/10.1093/sysbio/syu018), a test statistic between 0 and 2 is "not worth more than a bare mention", a test statistic between 2 and 6 is "positive" evidence, a test statistic between 6 and 10 is "strong" evidence, and a test statistic above 10 is "very strong" evidence for the alternative model. The test statistic is calculated as 2 times the natural logarithm of the Bayes factor, and the Bayes factor is the ratio between the two marginal likelihoods (not the log likelihoods!). But given that the "marginal likelihoods" reported by "PathSampleAnalyser" are in fact log likelihoods, we can simply take their difference and multiply that difference by 2 to obtain the test statistic.

@@ -83,11 +83,11 @@ Based on simulations, we tested the performance of SNAPP with a range of dataset
 
 * If you no longer have file `NC_031969.f5.sub4.vcf` (it was produced in tutorial [Species-Tree Inference with SNP Data](../species_tree_inference_with_snp_data/README.md)), download it from GitHub:
 	
-		wget https://github.com/mmatschiner/phylogenomics/raw/refs/heads/main/divergence_time_estimation_with_snp_data/data/NC_031969.f5.sub4.vcf
+		wget https://github.com/mmatschiner/lynx/raw/refs/heads/main/divergence_time_estimation_with_snp_data/data/NC_031969.f5.sub4.vcf
 
 As mentioned above and in tutorial [Species-Tree Inference with SNP Data](../species_tree_inference_with_snp_data/README.md), the dataset in file `NC_031969.f5.sub4.vcf` contains SNP data for two individuals per species. To reduce the run time for SNAPP, we are going to produce another version of the same dataset that is reduced to only a single individual per species.
 
-* To exclude the individuals "IZA1", "AXD5", "JBD5", "JUI1", "KHA9", "IVF1", "JWH1", "JWG8", "JWH3", "JWH5", "ISA6", "IYA4", and "KFD4" (these were selected because they have more missing data than the other individuals of each species) from a new file named `NC_031969.f5.sub5.vcf`, use the following commands:
+* To exclude the individuals "IZA1", "AXD5", "JBD5", "JUI1", "KHA9", "IVF1", "JWH1", "JWG8", "JWH3", "JWH5", "ISA6", "IYA4", and "KFD4" (these were selected because they have more missing data than the other individuals of each species) from a new file named `NC_031969.f5.sub5.vcf`, use the following command:
 
 		bcftools view -s ^IZA1,AXD5,JBD5,JUI1,KHA9,IVF1,JWH1,JWG8,JWH3,JWH5,ISA6,IYA4,KFD4 -o NC_031969.f5.sub5.vcf NC_031969.f5.sub4.vcf
 		
