@@ -3,6 +3,7 @@
 A collection of tutorials on phylogenomic and related analyses, written for analyses on the lynx server at LMU Munich.
 
 <br>
+
 ## Prepration
 
 * [Requirements](requirements/README.md)<br>A list of all installations required for the tutorials
@@ -10,6 +11,7 @@ A collection of tutorials on phylogenomic and related analyses, written for anal
 * [Getting Started](getting_started/README.md)<br>General instructions on the use of these tutorials
 
 <br>
+
 ## Phylogenetic Inference
 
 * [Maximum-Likelihood Phylogenetic Inference](ml_phylogeny_inference/README.md)<br>A tutorial on maximum-likelihhood phylogenetic inference
@@ -21,6 +23,7 @@ A collection of tutorials on phylogenomic and related analyses, written for anal
 -->
 
 <br>
+
 ## Species-tree Inference
 
 * [Maximum-Likelihood Species-Tree Inference](ml_species_tree_inference/README.md)<br>A tutorial on maximum-likelihood species-tree inference based on gene trees
