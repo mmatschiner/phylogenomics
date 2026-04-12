@@ -1,6 +1,6 @@
-# Phylogenomics
+# Tutorials
 
-A collection of tutorials on phylogenomic analyses, written for the lynx server at LMU Munich.
+A collection of tutorials on phylogenomic and related analyses, written for analyses on the lynx server at LMU Munich.
 
 ## Prepration
 
