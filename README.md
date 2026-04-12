@@ -13,7 +13,7 @@ A collection of tutorials on phylogenomic and related analyses, written for anal
 * [Maximum-Likelihood Phylogenetic Inference](ml_phylogeny_inference/README.md)<br>A tutorial on maximum-likelihhood phylogenetic inference
 
 * [Bayesian Phylogenetic Inference](bayesian_phylogeny_inference/README.md)<br>A tutorial on Bayesian inference of time-calibrated phylogenies
-
+<br><br><br>
 <!-- XXX This may be optional XXX
 * [Phylogenetic Divergence-Time Estimation](divergence_time_estimation/README.md)<br>A tutorial on phylogenetic divergence-time estimation with with fossils
 -->
