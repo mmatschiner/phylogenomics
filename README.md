@@ -52,7 +52,7 @@ A collection of tutorials on phylogenomic and related analyses, written for anal
 
 ## Species Delimitation
 
-* [BFD* with SNAPP](bfd_with_snapp/README.md)<br>A tutorial on Bayes-factor species delimitation using SNPs with SNAPP
+* [BFD* with SNAPP](bfd_with_snapp/README.md)<br>A tutorial on Bayes-factor species delimitation with SNP data
 
 ## Simulation-based Inference
 
