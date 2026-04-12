@@ -47,10 +47,12 @@ A collection of tutorials on phylogenomic and related analyses, written for anal
 * [Analysis of Introgression with SNP Data](analysis_of_introgression_with_snp_data/README.md)<br>A tutorial on the analysis of hybridization and introgression with SNP data
 
 <!--
-* [Analysis of Introgression with Tree Topologies](analysis_of_introgression_with_tree_topologies/README.md)<br>A tutorial on the analysis of hybridization and introgression with tree topologies from across the genome.
+* [Analysis of Introgression with Tree Topologies](analysis_of_introgression_with_tree_topologies/README.md)<br>A tutorial on the analysis of hybridization and introgression with tree topologies from across the genome
 -->
 
 ## Species Delimitation
+
+* [BFD* with SNAPP](bfd_with_snapp/README.md)<br>A tutorial on Bayes-factor species delimitation using SNPs with SNAPP
 
 ## Simulation-based Inference
 
