@@ -3,7 +3,6 @@
 A collection of tutorials on phylogenomic and related analyses, written for analyses on the lynx server at LMU Munich.
 
 <br>
-
 ## Prepration
 
 * [Requirements](requirements/README.md)<br>A list of all installations required for the tutorials
