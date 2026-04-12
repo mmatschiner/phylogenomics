@@ -20,7 +20,7 @@ Another limitation of SNAPP has long been that the reported branch lengths were 
 <a name="outline"></a>
 ## Outline
 
-In this tutorial I am going to present how the BEAST2 add-on package SNAPP can be used for divergence-time estimation with SNP data. The settings for time-calibrated inference with both approaches can not be specified through the program BEAUti, but instead the Ruby script [`snapp_prep.rb`](https://github.com/mmatschiner/snapp_prep) can be used to generate input files for time-calibrated analyses with SNAPP. Differences between the inferred species tree and the species tree generated in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) will be explored.
+In this tutorial I am going to present how the BEAST2 add-on package SNAPP can be used for divergence-time estimation with SNP data. The settings for time-calibrated inference with SNAPP can not be specified through the program BEAUti, but instead the Ruby script [`snapp_prep.rb`](https://github.com/mmatschiner/snapp_prep) can be used to generate input files for time-calibrated analyses with SNAPP. Differences between the inferred species tree and the species tree generated in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) will be explored.
 
 
 <a name="dataset"></a>

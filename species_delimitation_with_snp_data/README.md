@@ -4,21 +4,19 @@ A tutorial on Bayes factor species delimitation with SNP data
 
 ## Summary
 
-Another limitation of SNAPP has long been that the reported branch lengths were in coalescent units rather than in units of time, and that these could not easily be converted into time due to ascertainment bias in the SNP data. To address this, we tweaked the settings of SNAPP in our study [Stange et al. (2018)](https://doi.org/10.1093/sysbio/syy006) so that they include a strict-clock model that can be time calibrated based on the fossil record or on information from other phylogenies.
-
+The term "species delimitation" describes statistical methods that use genetic data to quantify whether certain groups of individuals are best considered at the level of "species" or at lower taxonomic levels (e.g., subspecies, populations). To qualify as species, these groups of individuals are required to show a degree of genetic separation from other groups of individuals, but how that degree is measured differs among the methods developed for this purpose. Perhaps a shortcoming of most of these methods is that they require alignment data or sets of gene trees as input, even though most genomic data is in the form of VCF files. In contrast, BFD* (Bayes Factor Delimitation with SNPs) ([Leaché et al., 2014](https://doi.org/10.1093/sysbio/syu018)) is a method that is implemented in [SNAPP](http://beast2.org/snapp/) ([Bryant et al., 2012](https://doi.org/10.1093/molbev/mss086)) and can be applied to SNP data. Most tutorials on BFD* analyses use BEAUti to set up the required BFD* input files; however, this is inconvenient because BEAUti does not handle VCF files. This tutorial therefore demonstrates how BFD* analyses can be prepared with a script that accepts VCF input files.
 
 ## Table of contents
 
 * [Outline](#outline)
 * [Dataset](#dataset)
 * [Requirements](#requirements)
-* [Divergence-time estimation with SNAPP](#snapp)
-* [Interpretation of SNAPP results](#interpretation)
+* [BFD* with SNAPP](#snapp)
 
 <a name="outline"></a>
 ## Outline
 
-In this tutorial I am going to present how the BEAST2 add-on package SNAPP can be used for divergence-time estimation with SNP data. The settings for time-calibrated inference with both approaches can not be specified through the program BEAUti, but instead the Ruby script [`snapp_prep.rb`](https://github.com/mmatschiner/snapp_prep) can be used to generate input files for time-calibrated analyses with SNAPP. Differences between the inferred species tree and the species tree generated in tutorial [Bayesian Species-Tree Inference](../bayesian_species_tree_inference/README.md) will be explored.
+In this tutorial I am going to present how the BEAST2 add-on package SNAPP can be used for species delimitation with SNP data. To set up this analysis for a SNP dataset in VCF format, the Ruby script [`bfd_prep.rb`](https://github.com/mmatschiner/bfd_prep) will be used. The files generated in this way will be used as input for SNAPP, and SNAPP will estimate Bayes factor support for two contrasting configurations of species delimitation.
 
 
 <a name="dataset"></a>
@@ -63,19 +61,21 @@ The SNP data used in this tutorial are the filtered dataset used for species-tre
 <a name="requirements"></a>
 ## Requirements
 
-* **BEAST2:** BEAST2 is a program for Bayesian phylogenetic analyses, that comes bundled with other tools, such as BEAUti (used to prepare BEAST2 input) and TreeAnnotator (used to process BEAST2 output). The BEAST2 program package needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
-
-* **Tracer:** The program [Tracer](http://beast.community/tracer) facilitates the inspection of output from Bayesian analyses such as those done with BEAST2. Tracer needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
-
-* **FigTree:** The program [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) is an intuitive and useful tool for the visualization and (to a limited extent) manipulation of phylogenies encoded in [Newick](http://evolution.genetics.washington.edu/phylip/newicktree.html) format. FigTree needs to be installed on your local computer (see [Requirements](../requirements/README.md)).
+* **BEAST2:** BEAST2 is a program for Bayesian phylogenetic analyses, that comes bundled with other tools, such as BEAUti (used to prepare BEAST2 input) and TreeAnnotator (used to process BEAST2 output). For this tutorial, the BEAST2 program package is only required on lynx and will not need to be installed on your local computer.
 
 * **SNAPP:** The [SNAPP method](https://www.beast2.org/snapp/) ([Bryant et al. 2012](https://doi.org/10.1093/molbev/mss086)) add-on package for BEAST2 implements a version of the multi-species coalescent model that mathematically integrates over all possible trees at biallelic loci, and is therefore particularly well suited for SNP data. SNAPP can be installed through the BEAST2 Package Manager; however, since BEAUti will not be used to prepare SNAPP input files, the SNAPP package does not need to be installed on local computers, but only on lynx, as described in the tutorial.
 
 
 <a name="snapp"></a>
-## Divergence-time estimation with SNAPP
+## BFD* with SNAPP
 
-In this part of the tutorial, we are going to run a SNAPP analysis using an XML input file that is prepared with the Ruby script `snapp_prep.rb` ([Stange et al. (2018)](https://doi.org/10.1093/sysbio/syy006)). The settings specified by this script allow time calibration of the species tree estimated by SNAPP through age constraints on one or more divergence events. Additionally, the population sizes of all species are linked to avoid unfeasible run times when more than a handful of species are analyzed.
+As the name indicates, Bayes factor species delimitation is based on a statistic called the [Bayes factor](https://en.wikipedia.org/wiki/Bayes_factor). This Bayes factor compares two different models on the basis of the ["marginal likelihood"](https://en.wikipedia.org/wiki/Marginal_likelihood) that is estimated separately for both of these models, in a Bayesian analysis. While the calculation of the Bayes factor from these marginal likelihoods is easy (namely as their ratio), and there are clear rules for the interpretation of Bayes factors (laid out by [Kass and Raftery, 1995](https://doi.org/10.1080/01621459.1995.10476572); see below), the calculation of the marginal likelihoods themselves is tricky. The marginal likelihood can not simply be calculated from the output of any standard BEAST analysis ([Lartillot and Philippe, 2006](https://doi.org/10.1080/10635150500433722)), but requires specific approaches, with multiple separate analyses that factor in the prior and the posterior to different degrees. Two such approaches, similar to each other, are called "Stepping Stone" and "Path Sampling" ([Xie et al., 2011](https://doi.org/10.1093/sysbio/syq085); [Baele et al., 2012](https://doi.org/10.1093/molbev/msl161)). Both of these can be applied with BEAST2, through an implementation that is - perhaps confusingly - called [Path Sampling](https://www.beast2.org/path-sampling/). Here, we are going to use this implementation to perform the Stepping Stone approach, to estimate the marginal likelihood of two alternative models. In one of these models, two groups of individuals will be considered one and the same species, and in the alternative model, both will be considered separate species. The Bayes factor calculated from the two marginal likelihoods will then quantify the relative support for these two models.
+
+XXX
+
+
+
+
 
 Based on simulations, we tested the performance of SNAPP with a range of datasets in [Stange et al. (2018)](https://doi.org/10.1093/sysbio/syy006). We found that the run time of SNAPP increases more or less linearly with the number of SNPs included in the dataset, but that the number of individuals used per species has an even stronger influence on run time. However, we also found that accurate and strongly supported species trees can be obtained with datasets containing only around 1,000 SNPs for just a single individual per species. Thus, before preparing the input file for SNAPP, we will first reduce the dataset that was already filtered in tutorial [Species-Tree Inference with SNP Data](../species_tree_inference_with_snp_data/README.md). This further filtering will again be done with BCFtools.
 
